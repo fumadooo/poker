@@ -9,15 +9,15 @@ Legenda: [ ] a fazer · [~] em andamento · [x] feito com evidência em `run/<fa
 - [~] Scaffold: monorepo npm workspaces, `app/` Next.js 15 TS + Tailwind, `packages/engine`
 
 ## E1 — motor (P) · dono: `packages/engine/**`
-- [ ] Tipos + estado da mão (`HandState`), deck com `crypto`, avaliador 7 cartas (tabela de testes conhecida)
-- [ ] Rodadas de aposta (fold/check/call/bet/raise/all-in), min-raise, heads-up e 9-max, blinds, botão
-- [ ] Side pots, showdown, pagamento, rake (bps, cap, no-flop-no-drop), eventos
-- [ ] Simulação 10k mãos: Σ fichas constante, nenhuma exceção · `node --test` verde · `run/E1_evidence.md`
+- [x] Tipos + estado da mão (`HandState`), deck com `crypto`, avaliador 7 cartas (tabela de testes conhecida)
+- [x] Rodadas de aposta (fold/check/call/bet/raise/all-in), min-raise, heads-up e 9-max, blinds, botão
+- [x] Side pots, showdown, pagamento, rake (bps, cap, no-flop-no-drop), eventos
+- [x] Simulação 10k mãos: Σ fichas constante, nenhuma exceção · `node --test` verde (29/29) · `run/E1_evidence.md`
 
 ## D1 — schema (P) · dono: `supabase/migrations/**`, `tools/migrate.py`
-- [ ] `0001_init.sql` conforme PLAN §5 (profiles, ledger, balances, tables, seats, hands, actions) + RLS
-- [ ] `tools/migrate.py` aplica via Management API (`/v1/projects/{ref}/database/query`) e registra em `schema_migrations`
-- [ ] Evidência: tabelas no projeto, RLS negando anon em `tables.state`, `run/D1_evidence.md`
+- [x] `0001_init.sql` conforme PLAN §5 (profiles, ledger, balances, tables, seats, hands, actions) + RLS
+- [x] `tools/migrate.py` aplica via Management API (`/v1/projects/{ref}/database/query`) e registra em `schema_migrations`
+- [x] Evidência: tabelas no projeto, RLS negando anon em `tables.state`, `run/D1_evidence.md` (aplicada 2026-11-05 12:50 UTC)
 
 ## A1 — API (depende de E1 + D1) · dono: `app/app/api/**`, `app/lib/server/**`
 - [ ] `sit`, `leave`, `buyin`, `action`, `tick`, `me`, `state` com lock otimista (`version`) e ledger

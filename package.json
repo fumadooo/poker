@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": ["app", "packages/*"],
   "scripts": {
-    "test:engine": "node --test packages/engine/test/",
+    "test:engine": "npm --workspace packages/engine test",
     "dev": "npm --workspace app run dev",
     "build": "npm --workspace app run build"
   }

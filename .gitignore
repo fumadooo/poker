@@ -4,3 +4,4 @@ node_modules/
 .next/
 .vercel/
 run/*.log
+__pycache__/

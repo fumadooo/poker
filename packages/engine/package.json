@@ -1,0 +1,27 @@
+{
+  "name": "@poker/engine",
+  "version": "0.1.0",
+  "description": "Pure No-Limit Hold'em engine (deck, 7-card evaluator, betting rounds, side pots, rake). Zero runtime dependencies.",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test \"dist/__tests__/*.test.js\"",
+    "test:only": "node --test \"dist/__tests__/*.test.js\"",
+    "sim": "npm run build && node dist/__tests__/simulate.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.6.0"
+  }
+}
