@@ -23,7 +23,7 @@
 
 | Canal | Endereço | Uso |
 |---|---|---|
-| Site institucional (canal oficial) | https://blackops-ltda.vercel.app/contato | Atendimento, reclamação, privacidade (LGPD) e denúncia, com opção anônima e número de protocolo; mensagens gravadas em `site_messages`, revisadas pelo Diretor de Compliance ao menos uma vez por dia útil |
+| Site institucional (canal oficial) | https://bo-2iobkcvnv5nr.vercel.app/contato | Atendimento, reclamação, privacidade (LGPD) e denúncia, com opção anônima e número de protocolo; mensagens gravadas em `site_messages`, revisadas pelo Diretor de Compliance ao menos uma vez por dia útil |
 | WhatsApp | +55 48 8500-5705 | Dúvidas, suporte, reclamações |
 | E-mail | michael@mikhaeu.com | Reclamações formais, contestações, reembolsos, pedidos de titulares de dados (LGPD), denúncias (assunto "DENÚNCIA") |
 | Instagram | @mikhaeu_ (mensagem direta) | Dúvidas e primeiro contato; casos que envolvam dados pessoais ou valores são levados ao e-mail ou ao WhatsApp |

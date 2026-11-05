@@ -109,7 +109,7 @@ O quórum é a presença dos dois membros. Em caso de divergência, decide o Adm
 
 ## 8. Canal de denúncia
 
-8.1. Denúncias de violação de lei, destas políticas ou do código de conduta, por qualquer pessoa (cliente, afiliado, fornecedor ou terceiro), podem ser enviadas pelo canal oficial do site institucional (https://blackops-ltda.vercel.app/contato, assunto "Denúncia"), que aceita relato anônimo e gera número de protocolo, ou ao e-mail michael@mikhaeu.com com o assunto "DENÚNCIA".
+8.1. Denúncias de violação de lei, destas políticas ou do código de conduta, por qualquer pessoa (cliente, afiliado, fornecedor ou terceiro), podem ser enviadas pelo canal oficial do site institucional (https://bo-2iobkcvnv5nr.vercel.app/contato, assunto "Denúncia"), que aceita relato anônimo e gera número de protocolo, ou ao e-mail michael@mikhaeu.com com o assunto "DENÚNCIA".
 
 8.2. Denúncia que envolva o Diretor de Compliance é enviada diretamente ao Administrador, Raphael, pelo e-mail pessoal dele, o mesmo informado como contato do Representante Legal no cadastro da conta de pagamento.
 

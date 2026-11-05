@@ -5,8 +5,8 @@ H = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(H, "public")
 NAV = [("/", "Empresa"), ("/compliance", "Integridade e Compliance"), ("/privacidade", "Privacidade"),
        ("/termos", "Termos de Uso"), ("/jogo-responsavel", "Jogo Responsável"), ("/contato", "Contato e Denúncia")]
 LAYOUT = """<!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title} · BLACK OPS LTDA</title><meta name="description" content="BLACK OPS LTDA, CNPJ 58.557.156/0001-58, Florianópolis/SC. {title}.">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex,notranslate"><meta name="googlebot" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>{title} · BLACK OPS LTDA</title>
 <link rel="stylesheet" href="/styles.css"><link rel="icon" href="/favicon.svg" type="image/svg+xml"></head>
 <body><header class="top"><div class="wrap bar"><a class="brand" href="/"><span class="mark">BO</span><span>BLACK OPS <small>LTDA</small></span></a>
 <button class="menu" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>

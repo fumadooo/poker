@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Deploy do site institucional BLACK OPS na Vercel (REST). Cria o projeto/env na 1ª vez. python -I deploy.py"""
 import os, sys, json, time, hashlib, secrets, urllib.request, urllib.error
-H = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(H); API = "https://api.vercel.com"; NAME = "blackops-ltda"
+H = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(H); API = "https://api.vercel.com"; NAME = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".slug")).read().strip()  # URL opaca (não indexável)
+PID = "prj_J97c24UXZ6FHaYj4NRmAeYChSYpQ"
 E = {l.split("=", 1)[0].strip(): l.split("=", 1)[1].strip() for l in open(os.path.join(ROOT, ".env"), encoding="utf-8") if "=" in l and not l.startswith("#")}
 TEAM = E["VERCEL_TEAM_ID"]
 TOK = E.get("VERCEL_TOKEN") or json.load(open(os.path.expandvars(r"%APPDATA%\com.vercel.cli\Data\auth.json")))["token"]
@@ -18,7 +19,7 @@ def req(m, p, data=None, raw=None, headers=None):
         raise SystemExit(f"{m} {p} -> {e.code} {t[:300]}")
 def main():
     import subprocess; subprocess.run([sys.executable, "-I", os.path.join(H, "build.py")], check=True)
-    p = req("GET", f"/v9/projects/{NAME}")
+    p = req("GET", f"/v9/projects/{PID}")
     if p.get("_err") == 404:
         p = req("POST", "/v10/projects", {"name": NAME, "framework": None}); print("projeto criado", p.get("id"))
         envs = [("SUPABASE_URL", E["SUPABASE_URL"]), ("SUPABASE_SERVICE_ROLE_KEY", E["SUPABASE_SERVICE_ROLE_KEY"]), ("SITE_IP_SALT", secrets.token_hex(24))]
@@ -30,7 +31,7 @@ def main():
             for n in ns:
                 full = os.path.join(r, n); rel = os.path.relpath(full, H).replace("\\", "/"); d = open(full, "rb").read()
                 files.append((rel, d, hashlib.sha1(d).hexdigest(), len(d)))
-    for n in ("vercel.json", "package.json"):
+    for n in ("vercel.json", "package.json", "middleware.js"):
         d = open(os.path.join(H, n), "rb").read(); files.append((n, d, hashlib.sha1(d).hexdigest(), len(d)))
     for rel, d, sha, size in files:
         req("POST", "/v2/files", raw=d, headers={"x-vercel-digest": sha, "Content-Length": str(size), "Content-Type": "application/octet-stream"})
