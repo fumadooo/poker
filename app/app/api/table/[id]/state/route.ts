@@ -1,6 +1,6 @@
 // GET /api/table/[id]/state -> { ok, table (public cols), seats, state: publicView(state, me), me: { seat, hole },
-// legal: legalActions for the viewer or null, version, serverNow }. Never returns the deck, the seed of a running
-// hand, or another player's hole cards (engine publicView).
+// legal: legalActions for the viewer or null, version, serverNow }. Never returns the deck, the seed (only seedHash), or
+// another player's hole cards (engine publicView).
 import { connection, type NextRequest } from 'next/server';
 import { ApiError, handle, ok, requireUuid } from '@/lib/server/http';
 import { admin, userFromRequest } from '@/lib/server/supabase';
@@ -41,9 +41,9 @@ export async function GET(req: NextRequest, ctx: Ctx) {
     const mine = (uid ? seats.find((s) => s.user_id === uid) : undefined) ?? null;
     const st = table.state;
     const view = st ? publicView(st, uid) : null;
-    const myPlayer = st && mine ? st.players.find((p) => p.seat === mine.seat && p.playerId === uid) : undefined;
+    const myPlayer = st && uid ? st.players.find((p) => p.playerId === uid) : undefined;
     const me = { seat: mine ? mine.seat : null, hole: myPlayer ? myPlayer.hole.slice() : [] };
-    const legal = mine ? legalFor(st, mine.seat) : null;
+    const legal = legalFor(st, uid);
 
     return ok({ table: publicTable(table), seats, state: view, me, legal, version: table.version, serverNow: Date.now() });
   });

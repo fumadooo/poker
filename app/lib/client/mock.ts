@@ -6,6 +6,7 @@ import type {
   SeatRow, TablePublic, TableStateResponse,
 } from './types';
 import { ApiRequestError } from './types';
+import { buyinRange, MAX_BUYIN_BB, MAX_SEATS_OPTIONS, MIN_BUYIN_BB, RAKE_BPS, STAKES, TABLES_PER_DAY } from './tableRules';
 
 export const MOCK_USER_ID = 'mock-user-0001';
 
@@ -13,12 +14,13 @@ const now0 = Date.now();
 
 const tables: TablePublic[] = [
   { id: 'mesa-ipanema', name: 'Ipanema', game: 'nlh', sb_cents: 50, bb_cents: 100, max_seats: 9, min_buyin_cents: 4000, max_buyin_cents: 20000, rake_bps: 500, rake_cap_cents: null, hand_no: 128, seated: 6 },
-  { id: 'mesa-copacabana', name: 'Copacabana', game: 'nlh', sb_cents: 100, bb_cents: 200, max_seats: 6, min_buyin_cents: 10000, max_buyin_cents: 40000, rake_bps: 500, rake_cap_cents: null, hand_no: 41, seated: 3 },
-  { id: 'mesa-leblon', name: 'Leblon High', game: 'nlh', sb_cents: 500, bb_cents: 1000, max_seats: 9, min_buyin_cents: 50000, max_buyin_cents: 200000, rake_bps: 500, rake_cap_cents: 5000, hand_no: 7, seated: 0 },
+  { id: 'mesa-copacabana', name: 'Copacabana', game: 'nlh', sb_cents: 100, bb_cents: 200, max_seats: 6, min_buyin_cents: 8000, max_buyin_cents: 40000, rake_bps: 500, rake_cap_cents: null, hand_no: 41, seated: 3 },
+  { id: 'mesa-leblon', name: 'Leblon High', game: 'nlh', sb_cents: 500, bb_cents: 1000, max_seats: 9, min_buyin_cents: 50000, max_buyin_cents: 200000, rake_bps: 500, rake_cap_cents: null, hand_no: 7, seated: 0 },
 ];
 
 let balance = 100_000 - 20_000; // já comprou fichas na Ipanema
 let creditsToday = 1;
+let tablesCreatedToday = 0;
 
 const seatsByTable: Record<string, SeatRow[]> = {
   'mesa-ipanema': [
@@ -243,8 +245,23 @@ export const mockApi = {
     return delay(tables.map((t) => ({ ...t, seated: seatsByTable[t.id].filter((s) => s.status !== 'left').length })));
   },
   async createTable(body: CreateTableBody): Promise<{ id: string }> {
+    // mesmas regras (e mensagens) do POST /api/tables
+    const name = body.name.trim();
+    if (name.length < 2 || name.length > 40) throw new ApiRequestError(400, 'BAD_REQUEST', 'name must have 2..40 chars');
+    if (!STAKES.some(([s, b]) => s === body.sb && b === body.bb)) {
+      throw new ApiRequestError(400, 'BAD_STAKES', `sb/bb must be one of ${STAKES.map(([s, b]) => `${s}/${b}`).join(', ')}`);
+    }
+    if (!(MAX_SEATS_OPTIONS as readonly number[]).includes(body.maxSeats)) throw new ApiRequestError(400, 'BAD_REQUEST', 'maxSeats must be 2, 6 or 9');
+    if (body.rakeBps !== RAKE_BPS) throw new ApiRequestError(400, 'BAD_RAKE', `rakeBps is fixed at ${RAKE_BPS}`);
+    if (body.rakeCap !== null) throw new ApiRequestError(400, 'BAD_RAKE', 'rakeCap must be null (no cap)');
+    const { min, max } = buyinRange(body.bb);
+    if (body.minBuyin < min || body.maxBuyin > max || body.minBuyin > body.maxBuyin) {
+      throw new ApiRequestError(400, 'BUYIN_RANGE', `buy-in range must be within ${min}..${max} (${MIN_BUYIN_BB}-${MAX_BUYIN_BB} bb) and min <= max`);
+    }
+    if (tablesCreatedToday >= TABLES_PER_DAY) throw new ApiRequestError(400, 'TABLE_LIMIT', 'limit of 3 tables per day reached');
+    tablesCreatedToday += 1;
     const id = 'mesa-' + Math.random().toString(36).slice(2, 8);
-    tables.push({ id, name: body.name, game: 'nlh', sb_cents: body.sb, bb_cents: body.bb, max_seats: body.maxSeats, min_buyin_cents: body.minBuyin, max_buyin_cents: body.maxBuyin, rake_bps: body.rakeBps, rake_cap_cents: body.rakeCap, hand_no: 0, seated: 0 });
+    tables.push({ id, name, game: 'nlh', sb_cents: body.sb, bb_cents: body.bb, max_seats: body.maxSeats, min_buyin_cents: body.minBuyin, max_buyin_cents: body.maxBuyin, rake_bps: body.rakeBps, rake_cap_cents: body.rakeCap, hand_no: 0, seated: 0 });
     seatsByTable[id] = [];
     states[id] = { state: null, version: 0 };
     return delay({ id });

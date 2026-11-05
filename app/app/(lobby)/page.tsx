@@ -14,8 +14,15 @@ function errMsg(e: unknown): string {
       CREDIT_LIMIT: 'Limite de 5 créditos de teste por dia.',
       HTTP_401: 'Sessão expirada. Entre de novo.',
       HTTP_404: 'A API ainda não está no ar.',
+      TABLE_LIMIT: 'Limite de 3 mesas por dia atingido.',
+      HTTP_429: 'Muitas tentativas. Espere um pouco.',
+      BAD_STAKES: 'Blinds não permitidos.',
+      BAD_RAKE: 'Rake inválido.',
+      BUYIN_RANGE: 'Buy-in fora do intervalo permitido.',
     };
-    return map[e.code] ?? e.message ?? e.code;
+    const label = map[e.code] ?? (e.status === 429 ? map.HTTP_429 : undefined);
+    if (label && e.message && e.message !== label && e.message !== e.code) return `${label} (${e.message})`;
+    return label ?? e.message ?? e.code;
   }
   return e instanceof Error ? e.message : 'Erro inesperado';
 }

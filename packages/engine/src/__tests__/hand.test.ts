@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -340,7 +341,10 @@ test('publicView hides the deck, the seed and other players hole cards; keeps sh
   assert.equal(P(w, 1).hole.length, 2);
   assert.equal(P(w, 2).hole.length, 2);
   assert.equal(w.result!.shown.length, 2);
-  assert.equal(w.seed, s.seed, 'seed published once the hand ended (audit)');
+  assert.equal(w.seed, '', 'seed never published (it would reveal folded hole cards)');
+  assert.match(w.seedHash, /^[0-9a-f]{64}$/);
+  assert.equal(w.seedHash, createHash('sha256').update(Buffer.from(s.seed, 'hex')).digest('hex'));
+  assert.equal(v.seedHash, w.seedHash, 'same commitment during and after the hand');
   // uncontested: winner's cards stay private
   let u = startHand(cfg, seats(1000, 1000), 1, null, NOW, rng());
   u = applyAction(u, 0, 'fold', undefined, NOW);

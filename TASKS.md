@@ -32,4 +32,5 @@ Legenda: [ ] a fazer · [~] em andamento · [x] feito com evidência em `run/<fa
 ## S1 — ship (depende de A1 + U1) · dono: `tools/deploy.py`, `tools/smoke.py`, `app/vercel.json`
 - [x] Projeto Vercel `poker` criado por REST, env vars, deploy, URL de produção: https://poker-beta-nine.vercel.app
 - [x] Smoke: API + UI 2 navegadores em produção, ledger bate · `run/S1_evidence.md`
-- [~] Revisão adversarial única do diff (segurança: cartas nunca vazam, saldo nunca negativo, ação fora de turno rejeitada)
+- [x] Revisão adversarial única do diff (segurança: cartas nunca vazam, saldo nunca negativo, ação fora de turno rejeitada)
+- [x] Correções da revisão adversarial (F1) · run/F1_evidence.md

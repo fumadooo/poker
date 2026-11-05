@@ -5,7 +5,7 @@
 
 Creates/uses two test users through the Supabase Admin API (service role), signs them in with the
 password grant, then plays one full hand over HTTP with `Authorization: Bearer <access_token>`:
-credit -> create table -> sit x2 -> tick (starts the hand) -> call/check (fold on the 3rd street) ->
+credit -> create table (allowlisted stakes, 40-200 bb) -> sit x2 -> tick (starts the hand) -> call/check (fold on the 3rd street) ->
 result -> auto-start of the next hand (tick after 3 s) -> fold -> leave x2 -> ledger invariant.
 Every step is printed. Exit code 0 only when every check passed.
 """
@@ -152,8 +152,17 @@ def main():
         credits_before[uid] = me["balance"]
 
     print("== 4. create table")
-    st, res = A.call("POST", "/api/tables", {"name": "smoke " + time.strftime("%H:%M:%S"), "sb": 50, "bb": 100, "maxSeats": 6,
-                                             "rakeBps": 500, "rakeCap": None, "minBuyin": 2000, "maxBuyin": 20000})
+    tbody = {"name": "smoke " + time.strftime("%H:%M:%S"), "sb": 50, "bb": 100, "maxSeats": 6,
+             "rakeBps": 500, "rakeCap": None, "minBuyin": 4000, "maxBuyin": 20000}
+    st, res = A.call("POST", "/api/tables", tbody)
+    if st == 400 and isinstance(res, dict) and res.get("error") == "TABLE_LIMIT":
+        # 3 tables/user/day (F1): repeated smoke runs on the same day create the table with the service role
+        print("  (A hit TABLE_LIMIT 3/day -> table created through the service role instead)")
+        st2, rows = http("POST", supa.url + "/rest/v1/tables", {
+            "name": tbody["name"], "sb_cents": 50, "bb_cents": 100, "max_seats": 6, "min_buyin_cents": 4000,
+            "max_buyin_cents": 20000, "rake_bps": 500, "rake_cap_cents": None, "created_by": ids[0]},
+            dict(supa.h, Prefer="return=representation"))
+        st, res = (201, {"ok": True, "id": rows[0]["id"]}) if st2 == 201 else (st2, rows)
     check(st == 201 and res.get("ok"), "POST /api/tables -> 201")
     tid = res["id"]
     st, res = A.call("GET", "/api/tables", auth=False)
@@ -178,7 +187,7 @@ def main():
     s = sa["state"]
     check(s is not None and s["street"] == "preflop", "hand started: street preflop")
     check(sa["table"].get("state") is None and "state" not in sa["table"], "table public cols carry no state")
-    check(s["deck"] == [] and s["seed"] == "", "publicView: no deck, seed hidden while running")
+    check(s["deck"] == [] and s["seed"] == "" and len(s.get("seedHash", "")) == 64, "publicView: no deck, no seed, seedHash present")
     check(len(sa["me"]["hole"]) == 2, "A sees own 2 hole cards")
     st, sb_ = B.call("GET", f"/api/table/{tid}/state", quiet=True)
     other = [p for p in sb_["state"]["players"] if p["playerId"] == ids[0]][0]
@@ -188,6 +197,8 @@ def main():
     check(all(p["hole"] == [] for p in an["state"]["players"]) and an["me"]["seat"] is None and an["me"]["hole"] == [] and an["legal"] is None,
           "anon sees no hole cards at all, me.seat null, legal null")
     check(an["state"]["deck"] == [] and an["state"]["seed"] == "", "anon: no deck, no seed")
+    st, res = A.call("POST", f"/api/table/{tid}/sit", {"seat": 1, "buyin": 2000})
+    check(st == 400 and res["error"] == "BUYIN_RANGE", "buyin below the 40 bb table min -> 400 BUYIN_RANGE")
     st, res = A.call("POST", f"/api/table/{tid}/tick", auth=False)
     check(st == 401, "anon tick -> 401")
     print(f"  hand {s['handId']} no={s['handNo']} button={s['button']} sb={s['sbSeat']} bb={s['bbSeat']} toAct={s['toAct']} version={sa['version']}")
@@ -231,7 +242,7 @@ def main():
     sv = play_hand("8. play: call/check, fold on the turn", "turn")
     s = sv["state"]
     check(s["street"] == "ended" and s["result"] is not None, "street ended with result")
-    check(s["seed"] != "", "seed published after the hand ended (audit)")
+    check(s["seed"] == "" and len(s.get("seedHash", "")) == 64, "ended hand: seed still hidden, seedHash published (F1)")
     r = s["result"]
     print(f"  board={s['board']} pots={s['pots']} rake={r['rake']} winners={r['winners']} stacks={r['stacks']}")
     check(sum(w["amount"] for w in r["winners"]) + r["rake"] == sum(p["amount"] for p in s["pots"]), "winners + rake == pots")
@@ -239,8 +250,9 @@ def main():
     hand1 = s["handId"]
 
     print("== 9. settlement rows")
-    hands = supa.rest(f"hands?id=eq.{hand1}&select=id,hand_no,ended_at,pot_cents,rake_cents,seed,board")
+    hands = supa.rest(f"hands?id=eq.{hand1}&select=id,hand_no,ended_at,pot_cents,rake_cents,seed_hash,board")
     check(len(hands) == 1 and hands[0]["ended_at"] is not None, "hands row exists with ended_at")
+    check(hands[0]["seed_hash"] == s["seedHash"], "hands.seed_hash == state.seedHash")
     acts = supa.rest(f"actions?hand_id=eq.{hand1}&select=seat,street,action,amount_cents&order=id")
     print(f"  actions: {acts}")
     check(len(acts) == len([e for e in s['log'] if e['kind'] == 'action']), "one actions row per action event")

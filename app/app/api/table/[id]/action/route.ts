@@ -1,9 +1,11 @@
 // POST /api/table/[id]/action { action, amount?, version } -> applyAction + apply_table_update.
-// 409 VERSION_CONFLICT · 403 NOT_YOUR_TURN · 400 ILLEGAL_ACTION. { ok, version }
+// 409 VERSION_CONFLICT · 403 NOT_IN_HAND / NOT_YOUR_TURN · 400 ILLEGAL_ACTION. { ok, version }
+// The acting seat is derived from the engine state (state.players[].playerId === caller), never from the request
+// or from the seats table (a re-seated user can't act for the previous occupant of the seat).
 import type { NextRequest } from 'next/server';
 import type { ActionKind } from '@poker/engine';
 import { ApiError, handle, intField, ok, readJson, requireUser, requireUuid } from '@/lib/server/http';
-import { actionMutation, mutate, requireTable } from '@/lib/server/table';
+import { actionMutation, mutate } from '@/lib/server/table';
 
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -19,11 +21,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     const amount = intField(body, 'amount', { min: 0 }) ?? undefined;
     const version = intField(body, 'version', { min: 0, required: true })!;
 
-    const { seats } = await requireTable(id);
-    const mine = seats.find((s) => s.user_id === user.id);
-    if (!mine) throw new ApiError(403, 'NOT_SEATED', 'you are not seated at this table');
-
-    const r = await mutate(id, (t, _s, now) => actionMutation(t, mine.seat, action as ActionKind, amount, now), { expectVersion: version });
+    const r = await mutate(id, (t, _s, now) => actionMutation(t, user.id, action as ActionKind, amount, now), { expectVersion: version });
     return ok({ version: r.version });
   });
 }

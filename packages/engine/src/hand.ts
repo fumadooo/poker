@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { newDeck, prngFromSeed, randomSeed, seedFromRng, shuffle } from './cards.js';
 import { evaluate7 } from './evaluate.js';
 import { computeRake } from './rake.js';
@@ -476,12 +476,22 @@ export function applyTimeout(state: HandState, now: number): HandState {
   return applyAction(marked, seat, action, undefined, now);
 }
 
-/** Copy of the state safe to send to a client: no deck, no seed (until ended), only the viewer's hole cards (+ shown at showdown). */
-export function publicView(state: HandState, viewerPlayerId: string | null): HandState {
-  const v = structuredClone(state);
+/** sha256 (hex) of the seed bytes: the public commitment of the hand's RNG. The seed itself stays server-side. */
+export function seedHashOf(seed: string): string {
+  return /^(?:[0-9a-f]{2})+$/.test(seed) ? createHash('sha256').update(Buffer.from(seed, 'hex')).digest('hex') : '';
+}
+
+export type PublicHandState = HandState & { seedHash: string };
+
+/**
+ * Copy of the state safe to send to a client: no deck, NEVER the seed (the deck order would reveal folded and
+ * mucked hole cards), `seedHash` instead; only the viewer's hole cards (+ shown at showdown).
+ */
+export function publicView(state: HandState, viewerPlayerId: string | null): PublicHandState {
+  const v = structuredClone(state) as PublicHandState;
   v.deck = [];
-  const ended = v.street === 'ended';
-  if (!ended) v.seed = '';
+  v.seedHash = seedHashOf(state.seed);
+  v.seed = '';
   const shownSeats = new Set((v.result?.shown ?? []).map((x) => x.seat));
   for (const p of v.players) {
     if (p.playerId === viewerPlayerId) continue;

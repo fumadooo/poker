@@ -140,43 +140,36 @@ async function applyUpdate(tableId: string, version: number, state: StoredState 
   return typeof data === 'number' ? data : null;
 }
 
+/** Call a service-role-only plpgsql RPC that answers jsonb `{ ok, ... }` or `{ error, message }`. */
+export async function rpcJson<T extends Record<string, unknown>>(fn: string, args: Record<string, unknown>): Promise<T> {
+  const { data, error } = await admin().rpc(fn, args);
+  if (error) {
+    if (error.message?.startsWith('INSUFFICIENT_BALANCE')) throw new ApiError(400, 'INSUFFICIENT_BALANCE', error.message);
+    dbErr(error, fn);
+  }
+  const r = (data ?? {}) as Record<string, unknown>;
+  if (typeof r.error === 'string') {
+    const code = r.error;
+    const status = code === 'TABLE_NOT_FOUND' ? 404 : code === 'NOT_ENDED' ? 409 : 400;
+    throw new ApiError(status, code, typeof r.message === 'string' ? r.message : code);
+  }
+  return r as T;
+}
+
 /**
- * Persist an ended hand exactly once: hands (claim by PK = handId; ended_at set last = "complete"),
- * actions, seats.stack_cents from result.stacks, ledger rake for the house, cashout + 'left' for busted
- * or pending_leave players. Returns true when the hand is (now or already) fully settled.
+ * Settle an ended hand through the `settle_hand` RPC (migration 0002): ONE transaction under the table row lock
+ * that writes hands (+ hand_secrets.seed, public seed_hash), actions, final stacks BY (seat, user) taken from the
+ * state stored in the DB (never from this payload), house rake, cash-outs for busted / pending_leave seats, and
+ * state.settled. Idempotent per handId. Returns the new table version (or the current one if already settled).
  */
-export async function settleIfEnded(table: TableRow, state: HandState): Promise<boolean> {
-  if (state.street !== 'ended' || !state.result) return false;
-  const sb = admin();
+export async function settleIfEnded(table: TableRow, state: HandState): Promise<number | null> {
+  if (state.street !== 'ended' || !state.result) return null;
   const startT = state.log.find((e) => e.kind === 'start')?.t ?? Date.now();
   const endT = endedAtOf(state) || Date.now();
-  const potCents = state.pots.reduce((a, p) => a + p.amount, 0);
 
-  // 1. claim
-  const { error: claimErr } = await sb.from('hands').insert({
-    id: state.handId,
-    table_id: table.id,
-    hand_no: state.handNo,
-    started_at: new Date(startT).toISOString(),
-    ended_at: null,
-    board: state.board,
-    pot_cents: potCents,
-    rake_cents: state.rake,
-    seed: state.seed,
-    result: state.result,
-    log: state.log,
-  });
-  if (claimErr) {
-    if (claimErr.code === '23505') {
-      const { data } = await sb.from('hands').select('ended_at').eq('id', state.handId).maybeSingle();
-      return !!data?.ended_at; // someone else settled (or is settling) this hand
-    }
-    dbErr(claimErr, 'insert hand');
-  }
-
-  // 2. actions (a timeout is logged by the engine as a 'timeout' event followed by the forced action)
+  // actions history (a timeout is logged by the engine as a 'timeout' event followed by the forced action)
   const playerOf = (seat: number) => state.players.find((p) => p.seat === seat);
-  const rows: Record<string, unknown>[] = [];
+  const actions: Record<string, unknown>[] = [];
   for (let i = 0; i < state.log.length; i++) {
     const e = state.log[i];
     if (e.kind !== 'action' || e.seat === undefined || !e.action) continue;
@@ -184,8 +177,7 @@ export async function settleIfEnded(table: TableRow, state: HandState): Promise<
     const timedOut = !!prev && prev.kind === 'timeout' && prev.seat === e.seat;
     const p = playerOf(e.seat);
     if (!p) continue;
-    rows.push({
-      hand_id: state.handId,
+    actions.push({
       seat: e.seat,
       user_id: p.playerId,
       street: e.street ?? 'preflop',
@@ -194,52 +186,16 @@ export async function settleIfEnded(table: TableRow, state: HandState): Promise<
       at: new Date(e.t).toISOString(),
     });
   }
-  if (rows.length) {
-    const { error } = await sb.from('actions').insert(rows);
-    if (error) dbErr(error, 'insert actions');
-  }
-
-  // 3. stacks back to seats (players who left mid-hand were cashed out at fold time: skip)
-  const nowIso = new Date().toISOString();
-  for (const r of state.result.stacks) {
-    const { error } = await sb.from('seats')
-      .update({ stack_cents: r.stack, updated_at: nowIso })
-      .eq('table_id', table.id).eq('seat', r.seat).neq('status', 'left');
-    if (error) dbErr(error, 'update seat stack');
-  }
-
-  // 4. rake -> house
-  if (state.rake > 0) {
-    const { error } = await sb.from('ledger').insert({
-      user_id: HOUSE_ID, kind: 'rake', amount_cents: state.rake, table_id: table.id, hand_id: state.handId,
-      meta: { hand_no: state.handNo, pot_cents: potCents },
-    });
-    if (error) dbErr(error, 'insert rake');
-  }
-
-  // 5. busted or leaving players -> cashout (+stack) and 'left'
-  const { data: seats, error: sErr } = await sb.from('seats').select('*').eq('table_id', table.id).neq('status', 'left');
-  if (sErr) dbErr(sErr, 'reload seats');
-  for (const s of (seats ?? []) as SeatRow[]) {
-    if (s.stack_cents > 0 && !s.pending_leave) continue;
-    const { error: lErr } = await sb.from('ledger').insert({
-      user_id: s.user_id, kind: 'cashout', amount_cents: s.stack_cents, table_id: table.id, hand_id: state.handId,
-      meta: { seat: s.seat, reason: s.stack_cents === 0 ? 'busted' : 'leave' },
-    });
-    if (lErr) dbErr(lErr, 'insert cashout');
-    const { error: uErr } = await sb.from('seats')
-      .update({ status: 'left', stack_cents: 0, pending_leave: false, updated_at: nowIso })
-      .eq('table_id', table.id).eq('seat', s.seat);
-    if (uErr) dbErr(uErr, 'leave seat');
-  }
-
-  // 6. complete (hands/actions become publicly readable only now: RLS requires ended_at)
-  const { error: fin } = await sb.from('hands').update({ ended_at: new Date(endT).toISOString() }).eq('id', state.handId);
-  if (fin) dbErr(fin, 'finish hand');
-  return true;
+  const r = await rpcJson<{ version: number; already: boolean }>('settle_hand', {
+    p_table: table.id,
+    p_hand_id: state.handId,
+    p_meta: { started_at: new Date(startT).toISOString(), ended_at: new Date(endT).toISOString(), settled_at: Date.now(), actions },
+  });
+  return typeof r.version === 'number' ? r.version : null;
 }
 
-export interface Mutation { state: StoredState | null; handNo?: number; button?: number | null }
+/** `settleOnly`: the stored state is an ended, unsettled hand -> no state write, just run settle_hand. */
+export interface Mutation { state: StoredState | null; handNo?: number; button?: number | null; settleOnly?: boolean }
 export interface MutateResult { changed: boolean; version: number; table: TableRow; seats: SeatRow[] }
 
 /**
@@ -265,20 +221,22 @@ export async function mutate(
     const handNo = m.handNo ?? table.hand_no;
     const button = m.button === undefined ? table.button : m.button;
 
-    let version = await applyUpdate(table.id, table.version, m.state, handNo, button);
-    if (version === null) {
-      if (opts.expectVersion !== undefined || attempt >= RPC_RETRIES) {
-        throw new ApiError(409, 'VERSION_CONFLICT', 'table changed concurrently, retry');
+    let version: number = table.version;
+    if (!m.settleOnly) {
+      const v1 = await applyUpdate(table.id, table.version, m.state, handNo, button);
+      if (v1 === null) {
+        if (opts.expectVersion !== undefined || attempt >= RPC_RETRIES) {
+          throw new ApiError(409, 'VERSION_CONFLICT', 'table changed concurrently, retry');
+        }
+        continue;
       }
-      continue;
+      version = v1;
     }
 
+    // ended + unsettled: settle atomically (a crash here leaves ended && !settled; the next tick retries)
     if (m.state && m.state.street === 'ended' && !m.state.settled) {
-      const done = await settleIfEnded({ ...table, hand_no: handNo, button }, m.state);
-      if (done) {
-        const v2 = await applyUpdate(table.id, version, { ...m.state, settled: true, settledAt: Date.now() }, handNo, button);
-        if (v2 !== null) version = v2;
-      }
+      const v2 = await settleIfEnded({ ...table, hand_no: handNo, button }, m.state);
+      if (v2 !== null) version = v2;
     }
 
     void broadcast(tableId, version);
@@ -294,7 +252,7 @@ export function tickMutation(table: TableRow, seats: SeatRow[], now: number): Mu
     const next = applyTimeout(st, now);
     if (next !== st) return { state: next };
   }
-  if (st && st.street === 'ended' && !st.settled) return { state: st }; // re-write -> mutate settles it
+  if (st && st.street === 'ended' && !st.settled) return { state: st, settleOnly: true }; // crash recovery
   const started = startNextHandIfPossible(table, seats, now);
   if (started) return { state: started, handNo: started.handNo, button: started.button };
   if (st && st.street === 'ended' && st.settled && now - (st.settledAt ?? endedAtOf(st)) >= NEXT_HAND_DELAY_MS) {
@@ -303,10 +261,17 @@ export function tickMutation(table: TableRow, seats: SeatRow[], now: number): Mu
   return null;
 }
 
-/** The "action" mutation for `seat`. Throws 403 NOT_YOUR_TURN / 400 ILLEGAL_ACTION. */
-export function actionMutation(table: TableRow, seat: number, action: ActionKind, amount: number | undefined, now: number): Mutation {
+/**
+ * The "action" mutation for the CALLER (`userId`): the acting seat is the one the engine state assigns to that
+ * player in the current hand (never a seat number from the seats table or the client).
+ * Throws 403 NOT_IN_HAND / NOT_YOUR_TURN, 400 ILLEGAL_ACTION.
+ */
+export function actionMutation(table: TableRow, userId: string, action: ActionKind, amount: number | undefined, now: number): Mutation {
   const st = table.state;
   if (!isBettingStreet(st)) throw new ApiError(400, 'ILLEGAL_ACTION', 'no hand in progress');
+  const me = st.players.find((p) => p.playerId === userId);
+  if (!me) throw new ApiError(403, 'NOT_IN_HAND', 'you are not playing this hand');
+  const seat = me.seat;
   if (st.toAct !== seat) throw new ApiError(403, 'NOT_YOUR_TURN', `seat ${st.toAct} is to act`);
   try {
     return { state: applyAction(st, seat, action, amount, now) };
@@ -317,9 +282,11 @@ export function actionMutation(table: TableRow, seat: number, action: ActionKind
   }
 }
 
-export function legalFor(state: HandState | null, seat: number | null): LegalActions | null {
-  if (!isBettingStreet(state) || seat === null) return null;
-  return legalActions(state, seat);
+/** Legal actions for the viewer: only for the seat the engine state assigns to `userId` in this hand. */
+export function legalFor(state: HandState | null, userId: string | null): LegalActions | null {
+  if (!isBettingStreet(state) || !userId) return null;
+  const me = state.players.find((p) => p.playerId === userId);
+  return me ? legalActions(state, me.seat) : null;
 }
 
 export { publicView };

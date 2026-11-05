@@ -89,7 +89,8 @@ export function TableClient({ id }: { id: string }) {
     let channel: ReturnType<ReturnType<typeof getSupabase>['channel']> | null = null;
     try {
       const sb = getSupabase();
-      channel = sb.channel(`table:${id}`).on('broadcast', { event: 'state' }, () => { refetch(); }).subscribe();
+      // private channel: only the server (service role, REST) can send; clients read via the realtime.messages policy
+      channel = sb.channel(`table:${id}`, { config: { private: true } }).on('broadcast', { event: 'state' }, () => { refetch(); }).subscribe();
     } catch (e) {
       console.error(e);
     }

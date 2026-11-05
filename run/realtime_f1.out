@@ -1,0 +1,9 @@
+private subscribe (anon): SUBSCRIBED 
+public subscribe same topic: SUBSCRIBED 
+attacker private ws send -> ok
+attacker public ws send -> ok
+attacker REST anon private -> 202
+server REST service private -> 202
+private viewer received: [{"version":1,"via":"rest"}]
+public viewer received: [{"version":777,"via":"public-ws"}]
+RT_RESULT: PASS (private viewer got only the server message)
