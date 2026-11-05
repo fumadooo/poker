@@ -62,9 +62,9 @@ export function ActionBar({ legal, potTotal, currentBet, busy, secondsLeft, onAc
   const step = sizing ? Math.max(1, Math.round((sizing.max - sizing.min) / 200)) : 1;
 
   return (
-    <div className="panel flex flex-col gap-3 p-3">
+    <div className="panel flex flex-col gap-2 p-2 sm:gap-3 sm:p-3">
       {sizing && (
-        <div className="flex flex-col gap-2">
+        <div className="order-2 flex flex-col gap-2 sm:order-none">
           <div className="flex items-center gap-2">
             <span className="text-xs text-white/60">{isRaise ? 'Aumentar para' : 'Apostar'}</span>
             <input
@@ -98,7 +98,7 @@ export function ActionBar({ legal, potTotal, currentBet, busy, secondsLeft, onAc
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="order-1 grid grid-cols-3 gap-2 sm:order-none">
         <button type="button" className="btn btn-fold" disabled={disabled || !legal.fold} onClick={() => onAction('fold')}>
           Desistir
         </button>

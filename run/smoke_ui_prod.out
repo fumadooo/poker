@@ -1,0 +1,16 @@
+mesa: 2b78bd80-c087-42d8-a4e2-7219670d8634 | {'ok': True, 'id': '2b78bd80-c087-42d8-a4e2-7219670d8634'}
+lobby A: https://poker-beta-nine.vercel.app/ | tem 'Smoke UI': True
+sit A: True
+sit B: True
+  A clicou Pagar
+  B clicou Passar
+  B clicou Passar
+  A clicou Passar
+  B clicou Passar
+  A clicou Passar
+  B clicou Passar
+  A clicou Passar
+mão terminou pela UI | street: ended | ações clicadas: 8
+mãos gravadas na mesa: [{'hand_no': 1, 'pot_cents': 200, 'rake_cents': 10, 'board': ['3d', '9c', 'Jd', 'Ad', '4d']}]
+erros de página/console: 0
+== RESULT: PASS

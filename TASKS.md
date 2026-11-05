@@ -5,8 +5,8 @@ Legenda: [ ] a fazer · [~] em andamento · [x] feito com evidência em `run/<fa
 ## Infra (coordenador) — 2026-11-05
 - [x] Supabase projeto `poker` criado (`puvosfyvoqztqjlyzamf`, sa-east-1, org 21-days); chaves em `.env`
 - [x] Vercel token renovado (CLI local `vercel whoami`); time `21-days` = `team_C8W93VG78Ei3h5yrpc45srRL`
-- [ ] GitHub `fumadooo/poker`: token atual não cria repo → Michael cria e libera o token (bloqueio só para push)
-- [~] Scaffold: monorepo npm workspaces, `app/` Next.js 15 TS + Tailwind, `packages/engine`
+- [x] GitHub `fumadooo/poker` privado, criado pelo Chrome de trabalho; push com a conta fumadooo do GCM (remote `https://fumadooo@github.com/...`)
+- [x] Scaffold: monorepo npm workspaces, `app/` Next.js 15 TS + Tailwind, `packages/engine`
 
 ## E1 — motor (P) · dono: `packages/engine/**`
 - [x] Tipos + estado da mão (`HandState`), deck com `crypto`, avaliador 7 cartas (tabela de testes conhecida)
@@ -30,6 +30,6 @@ Legenda: [ ] a fazer · [~] em andamento · [x] feito com evidência em `run/<fa
 - [x] Playwright 2 contextos: screenshots em `run/` · `run/U1_evidence.md` (MOCK 1280/390, 0 erros; e2e real com 2 usuários fica no smoke S1)
 
 ## S1 — ship (depende de A1 + U1) · dono: `tools/deploy.py`, `tools/smoke.py`, `app/vercel.json`
-- [ ] Projeto Vercel `poker` criado por REST, env vars, deploy, URL de produção
-- [ ] Smoke: login 2 users → mesa → mão inteira → ledger bate · `run/S1_evidence.md`
-- [ ] Revisão adversarial única do diff (segurança: cartas nunca vazam, saldo nunca negativo, ação fora de turno rejeitada)
+- [x] Projeto Vercel `poker` criado por REST, env vars, deploy, URL de produção: https://poker-beta-nine.vercel.app
+- [x] Smoke: API + UI 2 navegadores em produção, ledger bate · `run/S1_evidence.md`
+- [~] Revisão adversarial única do diff (segurança: cartas nunca vazam, saldo nunca negativo, ação fora de turno rejeitada)

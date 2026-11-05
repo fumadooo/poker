@@ -274,7 +274,9 @@ export function TableClient({ id }: { id: string }) {
             )}
           </div>
           {mySeat != null ? (
-            <ActionBar legal={legal} potTotal={potTotal} currentBet={state?.currentBet ?? 0} busy={busy} secondsLeft={secondsLeft} onAction={doAction} />
+            <div className="sticky bottom-0 z-30 -mx-2 bg-[#0b1410]/95 px-2 pb-[env(safe-area-inset-bottom)] pt-1 backdrop-blur sm:mx-0 sm:px-0 md:static md:bg-transparent md:p-0">
+              <ActionBar legal={legal} potTotal={potTotal} currentBet={state?.currentBet ?? 0} busy={busy} secondsLeft={secondsLeft} onAction={doAction} />
+            </div>
           ) : (
             <div className="panel px-4 py-3 text-center text-sm text-white/60">Você está assistindo. Toque em um assento livre para sentar.</div>
           )}
