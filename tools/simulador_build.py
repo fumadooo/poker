@@ -1,164 +1,101 @@
 # -*- coding: utf-8 -*-
-"""Simulador do jogador — UMA aba: variáveis (azul) → resultado → tabela dia a dia (banca, resultado, rake, receita da casa).
-Estilo da business_health_v3 (cabeçalhos D9E2F3, totais E2EFDA, links verdes, notas cinza).
+"""Simulador do JOGADOR (didático, uma aba): 6 variáveis → 6 respostas → plano dia a dia.
     python -I tools/simulador_build.py  ->  C:/Users/micha/Downloads/simulador_jogador_poker.xlsx
 """
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.formatting.rule import FormulaRule
+from openpyxl.formatting.rule import DataBarRule, FormulaRule
 
 OUT = "C:/Users/micha/Downloads/simulador_jogador_poker.xlsx"
 F = "Arial"
-BLUE = Font(name=F, color="0000FF"); BLK = Font(name=F); BOLD = Font(name=F, bold=True); GREY = Font(name=F, color="595959", size=9)
-H1 = Font(name=F, bold=True, size=14)
-SEC = PatternFill("solid", fgColor="D9E2F3"); TOT = PatternFill("solid", fgColor="E2EFDA"); YEL = PatternFill("solid", fgColor="FFF2CC")
-thin = Side(style="thin", color="D0D5DD"); BOX = Border(left=thin, right=thin, top=thin, bottom=thin)
-RS = '"R$ "#,##0;"(R$ "#,##0\\);\\-'; RS2 = '"R$ "#,##0.00;"(R$ "#,##0.00\\);\\-'; N0 = '#,##0;\\(#,##0\\);\\-'; N1 = '#,##0.0;\\(#,##0.0\\);\\-'; PC = '0.0%;\\(0.0%\\);\\-'
+INK = "1F2937"; GREEN = "15803D"; LGREEN = "DCFCE7"; YEL = "FFF4CC"; LBLUE = "E0EAFF"; GREYT = "6B7280"; LINE = "D1D5DB"
+fill = lambda c: PatternFill("solid", fgColor=c)
+side = Side(style="thin", color=LINE); BOX = Border(left=side, right=side, top=side, bottom=side)
+RS = '"R$ "#,##0;"-R$ "#,##0;"R$ 0"'; RS2 = '"R$ "#,##0.00;"-R$ "#,##0.00;"R$ 0"'; N0 = '#,##0'; N1 = '#,##0.0'; PC = '0%'
+MAOS_HORA = 49      # média real por mesa (Brasa, mesa de R$ 5)
+BUYIN_BB = 40       # entrada mínima de uma mesa = 40 big blinds
 
 wb = openpyxl.Workbook(); ws = wb.active; ws.title = "Simulador"
-ws.sheet_view.showGridLines = False
-for col, w in zip("ABCDEFGHIJKLMNOP", [46, 16, 3, 7, 10, 12, 13, 13, 13, 13, 13, 12, 13, 13, 13, 13]): ws.column_dimensions[col].width = w
+ws.sheet_view.showGridLines = False; ws.sheet_view.zoomScale = 110
+for col, w in zip("ABCDEFGHI", [3, 34, 16, 4, 20, 20, 20, 20, 3]): ws.column_dimensions[col].width = w
 
-def cell(ref, v, font=BLK, fmt=None, fill=None):
-    c = ws[ref]; c.value = v; c.font = font
+def put(ref, v, size=11, bold=False, color=INK, bg=None, fmt=None, al="left", wrap=False):
+    c = ws[ref]; c.value = v; c.font = Font(name=F, size=size, bold=bold, color=color)
+    if bg: c.fill = fill(bg)
     if fmt: c.number_format = fmt
-    if fill: c.fill = fill
+    c.alignment = Alignment(horizontal=al, vertical="center", wrap_text=wrap)
     return c
-def sec(row, title):
-    for col in "AB": ws[f"{col}{row}"].fill = SEC
-    cell(f"A{row}", title, BOLD, fill=SEC)
-def note(ref, t): cell(ref, t, GREY)
 
-cell("A1", "Simulador do jogador — mude as variáveis azuis e veja o resultado por dia", H1)
-note("A2", "Tudo é fórmula. Valores padrão = o que funciona hoje na Brasa (SPY-brasa, 04–05/11/2026). Material de gestão de banca: mostra exigências, não garante resultado.")
+# título
+ws.row_dimensions[2].height = 30
+put("B2", "Seu plano de banca no poker", 18, True)
+put("B3", "Preencha os campos amarelos. O resto a planilha calcula.", 10, color=GREYT)
 
-# ---------------- VARIÁVEIS
-sec(4, "VARIÁVEIS (edite)")
-V = {}
-var = [
-    ("banca", "Banca inicial (R$)", 297, RS, "Pacotes testados: 47 · 97 · 297 · 497 · 697."),
-    ("bb", "Valor da ficha — big blind da mesa (R$)", 5, RS2, "Mesas medidas: 5 · 10 · 25."),
-    ("bi_bb", "Buy-in por entrada (em big blinds)", 47, N0, "Média da Brasa na mesa de R$ 5: 47 bb (R$ 233). Mínimo da Brasa: 40 bb."),
-    ("mesas", "Mesas ao mesmo tempo", 1, N0, None),
-    ("horas", "Horas por dia", 1, N1, None),
-    ("dias", "Dias", 30, N0, "Até 60 dias na tabela."),
-    ("mph", "Mãos por hora por mesa", 49, N0, "Medido na Brasa (mesa de R$ 5): 49."),
-    ("rake", "Rake pago pelo jogador (bb a cada 100 mãos)", 27.3, N1, "Medido na Brasa (mesa de R$ 5): 27,3. Mesa de R$ 10: 31,9 · R$ 25: 18,9."),
-    ("meta", "Meta de lucro líquido no período (R$)", 1900, RS, None),
-    ("ganho", "Ganho do jogador testado (bb a cada 100 mãos, já pago o rake)", None, N1, "Padrão = exatamente o necessário para a meta. Digite outro valor para testar."),
-    ("sd", "Oscilação do poker (desvio padrão, bb a cada 100 mãos)", 95, N0, "Referência de mercado para cash 6-max: 80–100."),
-    ("stop", "Stop-loss diário (em buy-ins)", 1, N1, None),
-    ("casa", "Parte do rake que fica com a casa", 0.85, PC, "Benchmark Brasa: 85%."),
-    ("imp", "Impostos sobre a receita da casa", 0.2125, PC, None),
-    ("cb", "Cashback / rakeback ao jogador (% do rake)", 0.176, PC, None),
+# -------- VARIÁVEIS (só 6)
+put("B5", "VOCÊ ESCOLHE", 10, True, "FFFFFF", INK); ws["C5"].fill = fill(INK)
+inputs = [("Banca inicial", 297, RS), ("Valor da ficha (big blind da mesa)", 5, RS2), ("Mesas ao mesmo tempo", 1, N0),
+          ("Horas por dia", 1, N1), ("Dias do plano", 30, N0), ("Meta de lucro no plano", 1900, RS)]
+I = {}
+for i, (lab, val, fmt) in enumerate(inputs):
+    r = 6 + i; ws.row_dimensions[r].height = 24
+    put(f"B{r}", lab, 11); c = put(f"C{r}", val, 13, True, "1D4ED8", YEL, fmt, "center"); c.border = BOX
+    I[lab] = f"$C${r}"
+BANCA, FICHA, MESAS, HORAS, DIAS, META = (I[k] for k, _, _ in inputs)
+
+# -------- RESPOSTAS (cartões)
+put("E5", "SUA META PEDE", 10, True, "FFFFFF", INK)
+for col in "FGH": ws[f"{col}5"].fill = fill(INK)
+cards = [
+    ("E", "Lucro por dia", f"=IF({DIAS}=0,0,{META}/{DIAS})", RS2),
+    ("F", "Lucro por hora", f"=IF({DIAS}*{HORAS}=0,0,{META}/({DIAS}*{HORAS}))", RS2),
+    ("G", "Mãos por dia", f"={MESAS}*{HORAS}*{MAOS_HORA}", N0),
+    ("H", "Ganhar a cada 100 mãos", f"=IF({MESAS}*{HORAS}*{DIAS}*{FICHA}=0,0,{META}/({MESAS}*{HORAS}*{MAOS_HORA}*{DIAS}/100*{FICHA}))", '#,##0.0" fichas"'),
 ]
-r = 5
-for key, label, val, fmt, nt in var:
-    cell(f"A{r}", label); V[key] = f"$B${r}"
-    c = cell(f"B{r}", val, BLUE, fmt, YEL); c.border = BOX
-    if nt: note(f"D{r}", nt)
-    r += 1
-# ganho padrão = necessário (fórmula, definida depois que o necessário existe)
-
-# ---------------- RESULTADO
-r += 1; sec(r, "RESULTADO"); cell(f"B{r}", "valor", BOLD, fill=SEC); r += 1
-R = {}
-res = [
-    ("bi", "Buy-in por entrada (R$)", f"={V['bb']}*{V['bi_bb']}", RS2),
-    ("bimin", "Buy-in mínimo para sentar (40 bb, R$)", f"={V['bb']}*40", RS2),
-    ("senta", "Pode sentar?", None, "@"),
-    ("entr", "Entradas que a banca cobre", None, N1),
-    ("mdia", "Mãos por dia", f"={V['mesas']}*{V['horas']}*{V['mph']}", N0),
-    ("mtot", "Mãos no período", None, N0),
-    ("ldia", "Lucro necessário por dia (R$)", f"=IF({V['dias']}=0,0,{V['meta']}/{V['dias']})", RS2),
-    ("lhora", "Lucro necessário por hora (R$)", f"=IF({V['dias']}*{V['horas']}=0,0,{V['meta']}/({V['dias']}*{V['horas']}))", RS2),
-    ("lbb", "Lucro necessário em big blinds", f"=IF({V['bb']}=0,0,{V['meta']}/{V['bb']})", N0),
-    ("lbi", "Lucro necessário em buy-ins", None, N1),
-    ("nec", "GANHO NECESSÁRIO (bb a cada 100 mãos, já pago o rake)", None, N1),
-    ("antes", "GANHO ANTES DO RAKE (bb a cada 100 mãos)", None, N1),
-    ("rdia", "Resultado esperado por dia com o ganho testado (R$)", None, RS2),
-    ("osc", "Oscilação típica de um dia (± R$)", None, RS2),
-    ("perda", "Perda máxima num dia com o stop-loss (R$)", None, RS2),
-    ("aguenta", "Dias ruins seguidos que a banca aguenta (no stop-loss)", None, N1),
-    ("rtot", "Resultado esperado no período (R$)", None, RS),
-    ("bfim", "Banca no fim do período (R$)", None, RS),
-    ("bate", "Bate a meta?", None, "@"),
-    ("dmeta", "Dias até a meta com o ganho testado", None, N1),
-    ("rkdia", "Rake que o jogador paga por dia (R$)", None, RS2),
-    ("rktot", "Rake que o jogador paga no período (R$)", None, RS),
-    ("rcasa", "Receita líquida da casa com este jogador no período (R$)", None, RS),
+for col, lab, f, fmt in cards:
+    put(f"{col}6", lab, 10, color=GREYT, bg=LBLUE, al="center")
+    put(f"{col}7", f, 18, True, INK, LBLUE, fmt, "center"); ws.row_dimensions[7].height = 34
+    ws[f"{col}8"].fill = fill(LBLUE)
+cards2 = [
+    ("E", "Entrada mínima da mesa", f"={FICHA}*{BUYIN_BB}", RS),
+    ("F", "Você pode sentar?", f'=IF({BANCA}>={FICHA}*{BUYIN_BB},"SIM","NÃO")', "@"),
+    ("G", "Entradas que a banca paga", f"=IF({FICHA}=0,0,{BANCA}/({FICHA}*{BUYIN_BB}))", N1),
+    ("H", "Banca no fim do plano", f"={BANCA}+{META}", RS),
 ]
-for key, label, f, fmt in res:
-    cell(f"A{r}", label, BOLD if key in ("nec", "antes", "bfim", "bate") else BLK); R[key] = f"$B${r}"
-    if f: cell(f"B{r}", f, fmt=fmt)
-    r += 1
-def setf(key, f, fmt, font=BLK, fill=None): cell(R[key].replace("$", ""), f, font, fmt, fill)
-setf("senta", f'=IF({V["banca"]}>={R["bimin"]},"SIM","NÃO — banca abaixo do mínimo")', "@", BOLD)
-setf("entr", f"=IF({R['bi']}=0,0,{V['banca']}/{R['bi']})", N1)
-setf("mtot", f"={R['mdia']}*{V['dias']}", N0)
-setf("lbi", f"=IF({R['bi']}=0,0,{V['meta']}/{R['bi']})", N1)
-setf("nec", f"=IF({R['mtot']}*{V['bb']}=0,0,{V['meta']}/({R['mtot']}/100*{V['bb']}))", N1, BOLD, TOT)
-setf("antes", f"={R['nec']}+{V['rake']}", N1, BOLD, TOT)
-setf("rdia", f"={R['mdia']}/100*{V['ganho']}*{V['bb']}", RS2)
-setf("osc", f"={V['sd']}*SQRT({R['mdia']}/100)*{V['bb']}", RS2)
-setf("perda", f"={V['stop']}*{R['bi']}", RS2)
-setf("aguenta", f"=IF({R['perda']}=0,0,{V['banca']}/{R['perda']})", N1)
-setf("rtot", f"={R['rdia']}*{V['dias']}", RS)
-setf("bfim", f"={V['banca']}+{R['rtot']}", RS, BOLD, TOT)
-setf("bate", f'=IF({R["rtot"]}>={V["meta"]}-0.01,"SIM","NÃO")', "@", BOLD, TOT)
-setf("dmeta", f'=IF({R["rdia"]}<=0,"nunca",{V["meta"]}/{R["rdia"]})', N1)
-setf("rkdia", f"={R['mdia']}/100*{V['rake']}*{V['bb']}", RS2)
-setf("rktot", f"={R['rkdia']}*{V['dias']}", RS)
-setf("rcasa", f"={R['rktot']}*{V['casa']}*(1-{V['imp']}-{V['cb']})", RS)
-cell(V["ganho"].replace("$", ""), f"={R['nec']}", BLUE, N1, YEL)
-note(f"D{int(R['osc'].split('$')[-1])}", "Num dia normal o resultado varia, para cima ou para baixo, cerca deste valor em torno do esperado.")
-note(f"D{int(R['senta'].split('$')[-1])}", "Banca ≥ buy-in mínimo da mesa.")
+for col, lab, f, fmt in cards2:
+    put(f"{col}9", lab, 10, color=GREYT, bg=LGREEN, al="center")
+    put(f"{col}10", f, 18, True, GREEN, LGREEN, fmt, "center"); ws.row_dimensions[10].height = 34
+    ws[f"{col}11"].fill = fill(LGREEN)
+ws.conditional_formatting.add("F10", FormulaRule(formula=['F10="NÃO"'], font=Font(name=F, size=18, bold=True, color="B91C1C"), fill=fill("FEE2E2")))
 
-# ---------------- MATRIZ RÁPIDA: ganho necessário por mesas × horas
-r += 1; sec(r, "GANHO NECESSÁRIO (bb/100) — mesas ao mesmo tempo × horas por dia"); r += 1
-cell(f"A{r}", "horas por dia →", BOLD)
-hrs = [1, 2, 3, 4]
-for j, h in enumerate(hrs): cell(f"{'BDEF'[j] if False else chr(ord('B')+j)}{r}", h, BOLD, N0)
-hr = r; r += 1
-for i, mz in enumerate([1, 2, 3, 4]):
-    cell(f"A{r}", f"{mz} mesa(s)")
-    for j in range(len(hrs)):
-        col = chr(ord('B') + j)
-        cell(f"{col}{r}", f"=IF({col}${hr}*{mz}*{V['mph']}*{V['dias']}*{V['bb']}=0,0,{V['meta']}/({col}${hr}*{mz}*{V['mph']}*{V['dias']}/100*{V['bb']}))", fmt=N1)
-    r += 1
-note(f"A{r}", "Mesma meta, mesma ficha e mesmos dias das variáveis. Quanto mais mãos, menos ganho por 100 mãos a meta exige.")
-# matriz ocupa colunas B..E: afasta a tabela diária para a coluna G
-# ---------------- TABELA DIA A DIA (à direita)
-T0 = 4; c0 = "G"
-heads = ["Dia", "Mãos do dia", "Mãos acumuladas", "Resultado esperado do dia (R$)", "Dia ruim (−1 oscilação, R$)", "Banca no início (R$)",
-         "Banca no fim (R$)", "Lucro acumulado (R$)", "% da meta", "Rake pago no dia (R$)", "Receita da casa acumulada (R$)"]
-cols = [chr(ord(c0) + i) for i in range(len(heads))]
-for col, h in zip(cols, heads):
-    c = ws[f"{col}{T0}"]; c.value = h; c.font = BOLD; c.fill = SEC; c.alignment = Alignment(wrap_text=True, vertical="center"); c.border = BOX
-ws.row_dimensions[T0].height = 44
-ws.column_dimensions["G"].width = 6
+put("B12", "Ganhar a cada 100 mãos = quantas fichas (big blinds) você precisa somar, em média, a cada 100 mãos jogadas para chegar na meta.", 9, color=GREYT, wrap=True)
+ws.merge_cells("B12:H13")
+
+# -------- PLANO DIA A DIA
+put("B15", "SEU PLANO DIA A DIA", 10, True, "FFFFFF", INK)
+for col in "CEFGH": ws[f"{col}15"].fill = fill(INK)
+heads = [("B", "Dia"), ("C", "Mãos no dia"), ("E", "Lucro do dia"), ("F", "Lucro acumulado"), ("G", "Sua banca"), ("H", "Meta")]
+for col, h in heads:
+    c = put(f"{col}16", h, 10, True, INK, "F3F4F6", al="center"); c.border = BOX
+ws["D16"].fill = fill("F3F4F6")
+first = 17
 for k in range(1, 61):
-    rr = T0 + k; d, m, ma, res_, bad, bi_, bf, la, pm, rk, rc = cols
-    on = f"{d}{rr}<={V['dias']}"
-    cell(f"{d}{rr}", k, fmt=N0)
-    cell(f"{m}{rr}", f"=IF({on},{R['mdia']},0)", fmt=N0)
-    cell(f"{ma}{rr}", f"={m}{rr}" if k == 1 else f"={ma}{rr-1}+{m}{rr}", fmt=N0)
-    cell(f"{res_}{rr}", f"={m}{rr}/100*{V['ganho']}*{V['bb']}", fmt=RS2)
-    cell(f"{bad}{rr}", f"=IF({on},{res_}{rr}-{V['sd']}*SQRT({m}{rr}/100)*{V['bb']},0)", fmt=RS2)
-    cell(f"{bi_}{rr}", f"={V['banca']}" if k == 1 else f"={bf}{rr-1}", fmt=RS2)
-    cell(f"{bf}{rr}", f"={bi_}{rr}+{res_}{rr}", fmt=RS2)
-    cell(f"{la}{rr}", f"={bf}{rr}-{V['banca']}", fmt=RS2)
-    cell(f"{pm}{rr}", f"=IF({V['meta']}=0,0,{la}{rr}/{V['meta']})", fmt=PC)
-    cell(f"{rk}{rr}", f"={m}{rr}/100*{V['rake']}*{V['bb']}", fmt=RS2)
-    cell(f"{rc}{rr}", (f"={rk}{rr}" if k == 1 else f"={rc}{rr-1}+{rk}{rr}") + "", fmt=RS2)
-    # receita líquida acumulada da casa
-    ws[f"{rc}{rr}"].value = (f"={rk}{rr}*{V['casa']}*(1-{V['imp']}-{V['cb']})" if k == 1 else f"={rc}{rr-1}+{rk}{rr}*{V['casa']}*(1-{V['imp']}-{V['cb']})")
-    for col in cols: ws[f"{col}{rr}"].border = BOX
-last = T0 + 60
-rng = f"{cols[0]}{T0+1}:{cols[-1]}{last}"
-ws.conditional_formatting.add(rng, FormulaRule(formula=[f"${cols[0]}{T0+1}>{V['dias']}"], font=Font(color="BFBFBF")))
-ws.conditional_formatting.add(f"{cols[8]}{T0+1}:{cols[8]}{last}", FormulaRule(formula=[f"AND(${cols[0]}{T0+1}<={V['dias']},{cols[8]}{T0+1}>=1)"], fill=TOT))
-note(f"{cols[0]}{T0-1}", "Dia a dia com o ganho testado. Linhas cinza = depois do prazo. Verde = meta batida.")
-ws.freeze_panes = "A4"
+    r = first + k - 1; on = f"$B{r}<={DIAS}"
+    put(f"B{r}", k, 10, al="center")
+    put(f"C{r}", f"=IF({on},{MESAS}*{HORAS}*{MAOS_HORA},\"\")", 10, fmt=N0, al="center")
+    put(f"E{r}", f"=IF({on},{META}/{DIAS},\"\")", 10, fmt=RS2, al="center")
+    put(f"F{r}", f"=IF({on},{META}/{DIAS}*B{r},\"\")", 10, fmt=RS, al="center")
+    put(f"G{r}", f"=IF({on},{BANCA}+{META}/{DIAS}*B{r},\"\")", 10, True, fmt=RS, al="center")
+    put(f"H{r}", f"=IF({on},B{r}/{DIAS},\"\")", 10, fmt=PC, al="center")
+    for col in "BCEFGH": ws[f"{col}{r}"].border = BOX
+last = first + 59
+ws.conditional_formatting.add(f"B{first}:H{last}", FormulaRule(formula=[f"$B{first}>{DIAS}"], font=Font(color="FFFFFF"), border=Border()))
+ws.conditional_formatting.add(f"H{first}:H{last}", DataBarRule(start_type="num", start_value=0, end_type="num", end_value=1, color="22C55E"))
+ws.conditional_formatting.add(f"B{first}:H{last}", FormulaRule(formula=[f"AND($B{first}<={DIAS},MOD($B{first},7)=0)"], fill=fill("F9FAFB")))
+ws.freeze_panes = "A17"
+
+put(f"B{last+2}", f"Base: {MAOS_HORA} mãos por hora em cada mesa e entrada mínima de {BUYIN_BB} fichas, médias reais de mesas online. "
+                  "Poker tem altos e baixos: o plano mostra o caminho da meta, não garante o resultado. Proibido para menores de 18 anos.", 9, color=GREYT, wrap=True)
+ws.merge_cells(f"B{last+2}:H{last+3}")
+ws.print_area = f"A1:I{last+3}"; ws.page_setup.fitToWidth = 1; ws.sheet_properties.pageSetUpPr.fitToPage = True; ws.page_setup.fitToHeight = 0
 wb.calculation.fullCalcOnLoad = True
 wb.save(OUT); print("ok", OUT)
