@@ -1,0 +1,42 @@
+<!--title: Contato e Denúncia-->
+<p class="eyebrow">Atendimento · Ouvidoria · Canal de denúncia</p>
+<h1>Contato e Denúncia</h1>
+<p class="lead">Use este canal para atendimento, reclamação, pedido sobre dados pessoais (LGPD) ou denúncia de fraude, lavagem de dinheiro, corrupção ou violação das nossas políticas. Toda mensagem recebe um número de protocolo.</p>
+
+<div class="grid">
+ <div class="card"><h3>Prazos de resposta</h3><p>Primeira resposta em até 2 dias úteis. Pedidos de privacidade são respondidos em até 15 dias. Denúncias são analisadas pelo Diretor de Compliance em até 1 dia útil.</p></div>
+ <div class="card"><h3>Denúncia anônima</h3><p>Marque &ldquo;Quero ficar anônimo&rdquo; e não preencha nome, e-mail nem telefone. Guarde o protocolo para acompanhar o caso. É proibida retaliação contra quem faz um relato de boa-fé.</p></div>
+</div>
+
+<form id="f" novalidate>
+ <div><label for="kind">Assunto</label>
+  <select id="kind" name="kind" required>
+   <option value="contato">Atendimento e dúvidas</option>
+   <option value="reclamacao">Reclamação</option>
+   <option value="privacidade">Privacidade e dados pessoais (LGPD)</option>
+   <option value="denuncia">Denúncia (fraude, lavagem de dinheiro, corrupção, conduta)</option>
+  </select></div>
+ <label style="font-weight:400"><input type="checkbox" id="anon" name="anonymous" style="width:auto;margin-right:8px">Quero ficar anônimo</label>
+ <div class="idf"><label for="name">Nome</label><input id="name" name="name" maxlength="160" autocomplete="name"></div>
+ <div class="idf"><label for="email">E-mail</label><input id="email" name="email" type="email" maxlength="200" autocomplete="email"></div>
+ <div class="idf"><label for="phone">Telefone (opcional)</label><input id="phone" name="phone" maxlength="40" autocomplete="tel"></div>
+ <div><label for="message">Mensagem</label><textarea id="message" name="message" minlength="10" maxlength="5000" required placeholder="Descreva o que aconteceu, com datas e valores, se houver."></textarea></div>
+ <input class="hp" tabindex="-1" autocomplete="off" name="website" aria-hidden="true">
+ <p class="muted" style="font-size:13px;margin:0">Os dados enviados são tratados conforme a <a href="/privacidade">Política de Privacidade</a>.</p>
+ <button class="send" type="submit">Enviar</button>
+ <div id="out"></div>
+</form>
+<script>
+const f=document.getElementById('f'),out=document.getElementById('out'),anon=document.getElementById('anon');
+anon.addEventListener('change',()=>document.querySelectorAll('.idf').forEach(e=>{e.style.display=anon.checked?'none':'';e.querySelectorAll('input').forEach(i=>i.value='')}));
+f.addEventListener('submit',async e=>{e.preventDefault();const b=f.querySelector('button');out.className='';out.textContent='';
+ const d=Object.fromEntries(new FormData(f));d.anonymous=anon.checked;
+ if(!d.message||d.message.trim().length<10){out.className='err-box';out.textContent='Escreva uma mensagem com pelo menos 10 caracteres.';return}
+ if(!d.anonymous&&!d.email&&!d.phone){out.className='err-box';out.textContent='Informe e-mail ou telefone para receber a resposta, ou marque a opção anônima.';return}
+ b.disabled=true;b.textContent='Enviando...';
+ try{const r=await fetch('/api/contato',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});const j=await r.json();
+  if(j.ok){f.reset();document.querySelectorAll('.idf').forEach(e=>e.style.display='');out.className='ok-box';out.innerHTML='Mensagem recebida. Seu protocolo: <b>'+j.protocol+'</b>. Guarde este número.'}
+  else{out.className='err-box';out.textContent=j.message||'Não foi possível enviar. Tente de novo.'}}
+ catch(_){out.className='err-box';out.textContent='Falha de conexão. Tente de novo.'}
+ b.disabled=false;b.textContent='Enviar'});
+</script>
