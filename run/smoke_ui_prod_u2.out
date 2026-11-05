@@ -1,0 +1,27 @@
+mesa: None | {'ok': False, 'error': 'TABLE_LIMIT', 'message': 'limit of 3 tables per day reached'}
+lobby A: https://poker-beta-nine.vercel.app/ | tem 'Smoke UI': True
+sit A: False
+sit B: False
+Traceback (most recent call last):
+  File "C:\Users\micha\Downloads\agents\POKER\tools\smoke_ui.py", line 101, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\micha\Downloads\agents\POKER\tools\smoke_ui.py", line 89, in main
+    hands = json.load(urllib.request.urlopen(urllib.request.Request(f"{SB}/rest/v1/hands?table_id=eq.{tid}&select=hand_no,pot_cents,rake_cents,board", headers={"apikey": SR, "Authorization": "Bearer " + SR})))
+                      ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\micha\AppData\Local\Programs\Python\Python314\Lib\urllib\request.py", line 187, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\micha\AppData\Local\Programs\Python\Python314\Lib\urllib\request.py", line 493, in open
+    response = meth(req, response)
+  File "C:\Users\micha\AppData\Local\Programs\Python\Python314\Lib\urllib\request.py", line 602, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "C:\Users\micha\AppData\Local\Programs\Python\Python314\Lib\urllib\request.py", line 531, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\micha\AppData\Local\Programs\Python\Python314\Lib\urllib\request.py", line 464, in _call_chain
+    result = func(*args)
+  File "C:\Users\micha\AppData\Local\Programs\Python\Python314\Lib\urllib\request.py", line 611, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request
