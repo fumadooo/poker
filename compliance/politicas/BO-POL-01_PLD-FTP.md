@@ -21,19 +21,19 @@
 
 2.1. Aplica-se aos sócios, a qualquer futuro empregado, prestador de serviço ou estagiário, aos afiliados e aos fornecedores que tenham acesso a dados de clientes ou a fluxos de pagamento.
 
-2.2. Produtos e serviços cobertos: (a) cursos livres e conteúdo digital vendidos online ("Cursos"); (b) pagamento de comissões a afiliados; (c) plataforma própria de poker online, jogo de habilidade ("Poker"). Hoje o Poker opera somente com fichas de teste, sem dinheiro real. As regras sobre Poker com dinheiro real passam a valer no dia em que ele for liberado. A liberação depende de três condições prévias: aprovação da Trio, parecer jurídico favorável e alteração do objeto social; (d) uso da conta de pagamento na Trio: Pix de entrada e de saída, pagamentos em lote e cartão corporativo para mídia paga.
+2.2. Situação da Empresa: a Empresa atua em educação digital (cursos livres e conteúdo), com faturamento de cerca de R$ 1 milhão, e está em transição para concentrar o crescimento na plataforma própria de poker online, hoje em fase pré-operacional. A atividade de educação usa meio de pagamento próprio, fica fora do escopo da conta Trio e também observa os princípios de PLD/FTP, KYC e LGPD destas políticas. Produtos e serviços cobertos por esta política: (a) plataforma própria de poker online, jogo de habilidade ("Poker"): Texas Hold'em entre jogadores, sem banca, com receita exclusivamente de rake de 5%. Hoje o Poker opera somente com fichas de teste, sem dinheiro real. As regras sobre Poker com dinheiro real passam a valer no dia em que ele for liberado. A liberação depende de três condições prévias: aprovação da Trio, parecer jurídico favorável e alteração do objeto social, que hoje (CNAE 8599-6/99 e 6391-7/00) não inclui o poker; (b) pagamento de comissões a afiliados; (c) uso da conta de pagamento na Trio, exclusivamente para o Poker: Pix de depósito e de saque dos jogadores, pagamento de afiliados em lote e cartão corporativo para mídia paga.
 
 ## 3. Marco legal e referências
 
 3.1. Normas observadas: Lei 9.613/1998: crimes de lavagem e obrigações de identificação, registro e comunicação (arts. 9º a 11); Lei 13.260/2016: terrorismo e seu financiamento; Lei 13.810/2019: cumprimento imediato das sanções do Conselho de Segurança das Nações Unidas (CSNU), inclusive a indisponibilidade de ativos; Resolução BCB 44/2020: procedimentos de indisponibilidade, adotados como referência operacional; Circular BCB 3.978/2020: norma a que a Trio está sujeita como instituição de pagamento, adotada pela Empresa como referência voluntária de boas práticas; Resolução COAF 40/2021: definição de PEP; Lei 12.846/2013: anticorrupção; Lei 13.709/2018 (LGPD): proteção de dados pessoais; Lei 8.069/1990 (ECA): vedação de acesso de menores; Código Penal, art. 299: falsidade ideológica em declarações cadastrais.
 
-3.2. **Situação perante o COAF (declaração expressa).** Hoje a Empresa não é sujeito obrigado cadastrado no SISCOAF. Por isso: (a) comunica operações suspeitas à Trio, que, como sujeito obrigado, decide sobre a comunicação ao COAF; (b) se houver indício de crime, comunica também às autoridades competentes (Polícia Federal ou Ministério Público); (c) se passar a se enquadrar no art. 9º da Lei 9.613/1998 ou em norma setorial que exija cadastro, a Empresa se cadastra no SISCOAF antes de iniciar essa atividade e passa a cumprir diretamente os arts. 10 e 11 da mesma lei. O enquadramento do Poker com dinheiro real será avaliado no parecer jurídico do item 2.2(c).
+3.2. **Situação perante o COAF (declaração expressa).** Hoje a Empresa não é sujeito obrigado cadastrado no SISCOAF. Por isso: (a) comunica operações suspeitas à Trio, que, como sujeito obrigado, decide sobre a comunicação ao COAF; (b) se houver indício de crime, comunica também às autoridades competentes (Polícia Federal ou Ministério Público); (c) se passar a se enquadrar no art. 9º da Lei 9.613/1998 ou em norma setorial que exija cadastro, a Empresa se cadastra no SISCOAF antes de iniciar essa atividade e passa a cumprir diretamente os arts. 10 e 11 da mesma lei. O enquadramento do Poker com dinheiro real será avaliado no parecer jurídico do item 2.2(a).
 
 ## 4. Definições
 
-- **Cliente:** pessoa física que compra Cursos ou se cadastra no Poker. Pessoa jurídica não é aceita como jogadora.
+- **Cliente:** pessoa física que se cadastra no Poker. Pessoa jurídica não é aceita como jogadora.
 - **Afiliado:** pessoa física ou jurídica remunerada por comissão pela indicação de Clientes.
-- **Parceiro:** afiliado ou fornecedor relevante: bureau de KYC, fornecedor de prova de vida, plataforma de infoprodutos, Trio e provedor de infraestrutura.
+- **Parceiro:** afiliado ou fornecedor relevante: bureau de KYC, fornecedor de prova de vida, Trio e provedor de infraestrutura.
 - **PEP:** pessoa exposta politicamente, conforme a Resolução COAF 40/2021, incluindo familiares e estreitos colaboradores na forma da norma.
 - **Listas restritivas:** lista consolidada da ONU/CSNU; lista SDN da OFAC; relação de PEP, CEIS e CNEP da CGU (Portal da Transparência); opcionalmente, lista consolidada da União Europeia.
 - **Alerta:** registro gerado pelo motor de monitoramento (`tools/compliance/monitor.py`), ou por análise manual, quando uma regra do item 9 é atingida. É gravado na tabela `aml_alerts`.
@@ -49,7 +49,6 @@
 
 | Produto/serviço | Risco | Fundamento |
 |---|---|---|
-| Cursos e conteúdo digital | Baixo | Tíquete definido e preço público. Não há saldo, saque nem transferência entre usuários. O valor só volta ao comprador por reembolso |
 | Comissões a Afiliados | Médio | Saída de recursos para terceiros. Há risco de comissão fictícia, de auto-indicação e de uso de interposta pessoa |
 | Poker com dinheiro real | Alto | Há saldo, saque e interação financeira entre jogadores (chip dumping, conluio). Há também risco de fraude de identidade e de acesso de menores |
 | Poker com fichas de teste | Baixo | Sem dinheiro real; as fichas não têm valor e não são conversíveis |
@@ -61,7 +60,6 @@
 |---|---|---|
 | Relacionamento 100% digital | Médio | Validação de CPF em bureau, prova de vida antes do primeiro saque, impressão digital do dispositivo e registro de IP |
 | Pix (entrada e saída) | Médio | O Pix é instantâneo e irrevogável. Só se aceita pagador com o mesmo CPF do Cliente, e saque só vai para conta de mesma titularidade (BO-POL-02) |
-| Cartão via plataforma de infoprodutos | Baixo | Antifraude da própria plataforma. A Empresa monitora reembolsos e chargebacks (regras C01 e C02) |
 | Captação por Afiliados | Médio | KYP (item 12) e regras AF01 e AF02 |
 
 5.4. **Classificação do Cliente.** A classificação é gravada em `kyc_profiles` e resulta da soma dos pontos dos fatores presentes:
@@ -87,9 +85,9 @@ O resultado é: **baixo** de 0 a 2 pontos; **médio** de 3 a 5 pontos; **alto** 
 
 ## 6. Diligência devida
 
-6.1. **Simplificada.** Aplica-se ao Cliente de Cursos de baixo risco com compras abaixo de R$ 10.000 em 12 meses. Exige nome, CPF, data de nascimento, e-mail e celular verificados, e screening em todas as listas restritivas no cadastro.
+6.1. **Simplificada.** Aplica-se ao Cliente de Poker de baixo risco que usa somente fichas de teste, sem depósito nem saque (nível 0 da BO-POL-02). Exige nome, CPF, data de nascimento, e-mail e celular verificados, e screening em todas as listas restritivas no cadastro.
 
-6.2. **Padrão.** Aplica-se ao Cliente de Poker com dinheiro real, ao Cliente de Cursos com compras de R$ 10.000 ou mais em 12 meses e a todo Afiliado. Exige tudo da simplificada e também: (a) validação do CPF em bureau (para Afiliados, enquanto o bureau não estiver contratado, vale o procedimento manual da BO-POL-02, item 13.1(c)); (b) endereço completo; (c) prova de vida (selfie com documento) antes do primeiro saque ou do primeiro pagamento de comissão; (d) confirmação de mesma titularidade da conta de destino.
+6.2. **Padrão.** Aplica-se ao Cliente de Poker com dinheiro real e a todo Afiliado. Exige tudo da simplificada e também: (a) validação do CPF em bureau (para Afiliados, enquanto o bureau não estiver contratado, vale o procedimento manual da BO-POL-02, item 13.1(c)); (b) endereço completo; (c) prova de vida (selfie com documento) antes do primeiro saque ou do primeiro pagamento de comissão; (d) confirmação de mesma titularidade da conta de destino.
 
 6.3. **Reforçada.** Aplica-se a todo Cliente ou Afiliado de alto risco. Exige tudo da padrão e também: (a) comprovação documental da origem dos recursos ou da renda (BO-POL-02, item 8); (b) pesquisa de mídia negativa em buscador público por nome e CPF, registrada no dossiê; (c) limites definidos caso a caso, nunca acima da capacidade financeira comprovada; (d) gatilhos de monitoramento reduzidos (item 9.4); (e) atualização cadastral a cada 12 meses.
 
@@ -107,7 +105,7 @@ O resultado é: **baixo** de 0 a 2 pontos; **médio** de 3 a 5 pontos; **alto** 
 
 7.1. **Quando o screening é feito.** A ferramenta interna de screening (`tools/compliance/screening.py`) confere nome, data de nascimento e documento contra as listas restritivas e grava cada resultado em `screening_results`. A conferência ocorre (a) no cadastro, antes de qualquer movimentação; (b) antes de cada saque e de cada pagamento de comissão; (c) diariamente, contra toda a base ativa, com a lista da ONU baixada da fonte oficial (https://scsanctions.un.org/resources/xml/en/consolidated.xml) a cada execução; e (d) em cada atualização cadastral.
 
-7.2. **Correspondência confirmada na lista ONU/CSNU.** É confirmada quando o nome coincide e há pelo menos um identificador adicional (data de nascimento, documento ou nacionalidade). Sem aviso prévio ao Cliente: (a) **bloqueio imediato**, feito pela própria ferramenta no momento do resultado. Ficam indisponíveis saldo, fichas conversíveis, comissões a pagar, reembolsos pendentes e qualquer saque. O cadastro é congelado; (b) comunicação à Trio no mesmo dia, pelo canal de compliance contratado; (c) comunicação no mesmo dia ao Ministério da Justiça e Segurança Pública e ao COAF, pelos canais que esses órgãos disponibilizam. A comunicação informa a pessoa, os ativos bloqueados e a data e a hora do bloqueio, conforme a Lei 13.810/2019 e, como referência, a Resolução BCB 44/2020; (d) a indisponibilidade só é levantada por exclusão da pessoa da lista ou por determinação da autoridade competente. A decisão é registrada em `audit_log`.
+7.2. **Correspondência confirmada na lista ONU/CSNU.** É confirmada quando o nome coincide e há pelo menos um identificador adicional (data de nascimento, documento ou nacionalidade). Sem aviso prévio ao Cliente: (a) **bloqueio imediato**, feito pela própria ferramenta no momento do resultado. Ficam indisponíveis saldo, fichas conversíveis, comissões a pagar, devoluções pendentes e qualquer saque. O cadastro é congelado; (b) comunicação à Trio no mesmo dia, pelo canal de compliance contratado; (c) comunicação no mesmo dia ao Ministério da Justiça e Segurança Pública e ao COAF, pelos canais que esses órgãos disponibilizam. A comunicação informa a pessoa, os ativos bloqueados e a data e a hora do bloqueio, conforme a Lei 13.810/2019 e, como referência, a Resolução BCB 44/2020; (d) a indisponibilidade só é levantada por exclusão da pessoa da lista ou por determinação da autoridade competente. A decisão é registrada em `audit_log`.
 
 7.3. **Correspondência possível** (só nome ou dados parciais): a movimentação é bloqueada preventivamente e o Diretor de Compliance analisa em até 1 dia útil. Falso positivo: a evidência que o descarta é documentada em `screening_results` e a movimentação é liberada. Correspondência confirmada: aplica-se o item 7.2.
 
@@ -139,19 +137,17 @@ O resultado é: **baixo** de 0 a 2 pontos; **médio** de 3 a 5 pontos; **alto** 
 | **P08** Conluio em mesa | Contas na mesma mesa em 10 ou mais sessões em 30 dias, representando 50% ou mais das sessões de cada uma. Agrava se a taxa de aumentos (raise) entre elas for menor que um terço da taxa contra terceiros, ou se houver vínculo de dispositivo, IP ou geolocalização | Média; alta se agravado | Quando alta, saques retidos e contas separadas |
 | **P09** Acesso de fora do Brasil ou por VPN/proxy | Sessão de dinheiro real com IP fora do Brasil ou com proxy ou VPN detectado | Baixa; média com 3 ou mais sessões em 30 dias | Sessão de dinheiro real recusada |
 
-9.3. **Cursos, Afiliados e regras gerais**
+9.3. **Afiliados e regras gerais**
 
 | Regra | Gatilho objetivo | Severidade | Efeito automático |
 |---|---|---|---|
-| **C01** Reembolso e chargeback em série | Por CPF, dispositivo ou cartão: 2 ou mais reembolsos em 90 dias; ou 1 chargeback ou devolução Pix por fraude (MED); ou 3 ou mais pedidos de reembolso do mesmo produto vindos do mesmo dispositivo ou IP em 30 dias | Média; alta com 2 ou mais chargebacks ou MED | Novas compras do CPF suspensas até a análise |
-| **C02** Compra com dados de terceiros | CPF ou nome do pagador diferente do comprador; ou 3 ou mais CPFs distintos pelo mesmo dispositivo ou cartão em 30 dias | Média | Acesso ao curso só após confirmação |
-| **AF01** Auto-indicação de Afiliado | Indicado que compartilha CPF, dispositivo, IP ou chave Pix com o Afiliado | Alta | Comissão da venda retida |
-| **AF02** Comissão atípica | Comissão mensal acima de 3 vezes a média dos 3 meses anteriores, somando R$ 5.000 ou mais; ou reembolso ou chargeback das vendas do Afiliado acima de 15% no mês | Média | Lote do Afiliado retido até a análise |
+| **AF01** Auto-indicação de Afiliado | Indicado que compartilha CPF, dispositivo, IP ou chave Pix com o Afiliado | Alta | Comissão retida |
+| **AF02** Comissão atípica | Comissão mensal acima de 3 vezes a média dos 3 meses anteriores, somando R$ 5.000 ou mais | Média | Lote do Afiliado retido até a análise |
 | **G01** Lista ONU/CSNU confirmada | Item 7.2 | Crítica | Bloqueio imediato (item 7) |
 | **G02** Correspondência possível ou PEP não declarado | Itens 6.4.4 e 7.3 | Alta | Bloqueio preventivo |
 | **G03** Indício de menor de idade | Data de nascimento divergente no bureau, prova de vida incompatível ou denúncia | Alta | Conta suspensa |
 
-9.4. Para Clientes de alto risco, os gatilhos de valor e de quantidade das regras P01, P04, P05, C01 e AF02 caem pela metade.
+9.4. Para Clientes de alto risco, os gatilhos de valor e de quantidade das regras P01, P04, P05 e AF02 caem pela metade.
 
 9.5. O Diretor de Compliance revisa os gatilhos na revisão anual e sempre que o falso positivo de uma regra passar de 90% num trimestre. A alteração é aprovada pelo Comitê e registrada em ata e em `audit_log`.
 

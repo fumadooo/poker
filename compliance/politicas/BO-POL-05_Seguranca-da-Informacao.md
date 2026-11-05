@@ -20,7 +20,7 @@
 
 2.1. Aplica-se a toda informação da empresa, em qualquer meio, aos sistemas e contas que a armazenam, aos dois sócios, a colaboradores ou prestadores futuros e aos fornecedores que tratam dados em nome da empresa.
 
-2.2. Sistemas abrangidos: plataforma POKER (aplicação Next.js hospedada na Vercel, banco de dados e autenticação no Supabase, código no GitHub em repositório privado); conta de pagamento na Trio; plataforma de infoprodutos (vendas de cursos); contas de Instagram, WhatsApp e e-mail usadas no atendimento; computadores e celulares dos sócios.
+2.2. Sistemas abrangidos: plataforma POKER (aplicação Next.js hospedada na Vercel, banco de dados e autenticação no Supabase, código no GitHub em repositório privado); conta de pagamento na Trio; contas de Instagram, WhatsApp e e-mail usadas no atendimento; computadores e celulares dos sócios.
 
 ## 3. Definições
 
@@ -35,9 +35,9 @@
 
 | Classe | Conteúdo | Quem acessa | Regras |
 |---|---|---|---|
-| Pública | Conteúdo do Instagram, páginas de venda, regras das mesas, histórico de mãos encerradas exibido na plataforma | Qualquer pessoa | Revisão antes de publicar |
+| Pública | Conteúdo do Instagram, site institucional, regras das mesas, histórico de mãos encerradas exibido na plataforma | Qualquer pessoa | Revisão antes de publicar |
 | Interna | Planos, métricas de negócio, documentação técnica, código-fonte | Sócios e prestadores autorizados | Repositórios e pastas privados |
-| Confidencial | Dados pessoais de clientes e jogadores (e-mail, nome, CPF, histórico financeiro), relatórios de vendas, extratos, contratos | Sócios, na medida da função; operadores contratados | Acesso nominal, MFA, mínimo necessário; nunca em grupos ou canais abertos |
+| Confidencial | Dados pessoais de clientes e jogadores (e-mail, nome, CPF, histórico financeiro), relatórios financeiros, extratos, contratos | Sócios, na medida da função; operadores contratados | Acesso nominal, MFA, mínimo necessário; nunca em grupos ou canais abertos |
 | Restrita | Segredos; seeds das mãos (tabela `hand_secrets`); dados de KYC; análises e comunicações de PLD/FTP ao COAF; registros de incidentes | Somente o Diretor e, quando necessário, o Administrador | Nunca em código de cliente, repositório, e-mail ou mensagem; comunicações ao COAF sob sigilo (Lei 9.613/1998) |
 
 4.1. Na dúvida, aplica-se a classe mais alta. Quem cria a informação a classifica.
@@ -46,7 +46,7 @@
 
 5.1. **Menor privilégio**: cada pessoa e cada sistema recebe só o acesso necessário à sua função. Acesso é nominal; não há contas compartilhadas, exceto as contas institucionais que, por natureza, são únicas (ex.: perfil do Instagram), cujo acesso é registrado.
 
-5.2. **MFA obrigatório** em todas as contas administrativas: Supabase (organização e projeto `poker`), Vercel (time e projeto `poker`), GitHub (conta proprietária do repositório `poker`), Trio (internet banking e painel), e-mail michael@mikhaeu.com, plataforma de infoprodutos, Meta (Instagram e WhatsApp Business). Preferência por aplicativo autenticador ou chave física; SMS só onde não houver alternativa.
+5.2. **MFA obrigatório** em todas as contas administrativas: Supabase (organização e projeto `poker`), Vercel (time e projeto `poker`), GitHub (conta proprietária do repositório `poker`), Trio (internet banking e painel), e-mail michael@mikhaeu.com, Meta (Instagram e WhatsApp Business). Preferência por aplicativo autenticador ou chave física; SMS só onde não houver alternativa.
 Situação: regra vigente. O Diretor verifica cada conta e registra a evidência (captura da tela de segurança de cada serviço, com data) no registro de acessos antes do envio desta política à Trio; conta sem MFA é ativada no mesmo dia ou bloqueada (BO-POL-04, KRI).
 
 5.3. **Acesso dos usuários finais à plataforma POKER** (implementado):
@@ -151,7 +151,6 @@ A implementar antes da operação com dinheiro real: avaliação do gerador e do
 
 | Atividade | Dados | Finalidade | Base legal (LGPD) |
 |---|---|---|---|
-| Venda de cursos | Nome, e-mail, CPF, dados de pagamento (coletados pela plataforma de infoprodutos) | Entregar o curso, emitir nota, atender | Execução de contrato; obrigação legal |
 | Atendimento | Nome, contato, conteúdo da mensagem | Responder e resolver | Execução de contrato; legítimo interesse |
 | POKER (fichas de teste, hoje) | E-mail, apelido, histórico de jogo, registros técnicos | Prestar o serviço, segurança da plataforma | Execução de contrato; legítimo interesse (segurança e prevenção a fraude) |
 | POKER com dinheiro real (futuro) | Nome, CPF, data de nascimento, chave Pix e conta, CPF do pagador, resultado de screening | KYC, prevenção a fraude, PLD/FTP, bloqueio de menores | Obrigação legal ou regulatória; execução de contrato; legítimo interesse |
@@ -175,7 +174,6 @@ A implementar antes da operação com dinheiro real: avaliação do gerador e do
 | Vercel | Hospedagem da aplicação e das APIs | Dados em trânsito, logs de execução | MFA no time; segredos em variáveis de ambiente; deploy só pelos sócios |
 | GitHub | Repositório privado do código | Código; nenhum dado de cliente e nenhum segredo | MFA; repositório privado; `.env` fora do controle de versão |
 | Trio | Conta de pagamento, Pix, lote, cartão corporativo | Dados de pagadores e recebedores, extratos | MFA; acesso nominal; conciliação; contrato |
-| Plataforma de infoprodutos | Vendas de cursos | Dados de compradores | MFA; acesso nominal |
 | Meta (Instagram, WhatsApp) | Canais de atendimento | Mensagens de clientes | MFA; dados de cliente não ficam em conversas além do necessário |
 | Fornecedor de KYC | Validação de CPF e identidade | Dados de cadastro | A contratar antes da operação com dinheiro real, com contrato de operador |
 

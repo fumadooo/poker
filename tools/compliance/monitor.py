@@ -7,7 +7,9 @@ automáticos são os da política; os números estão em PARAMS, logo abaixo. Pr
 no banco por public.aml_due_at(severidade): crítica imediato, alta 5 dias úteis, média 15 dias úteis, baixa 30 dias,
 teto 45 dias.
 
-Regras (item 9.2 e 9.3): P01 P02 P03a P03b P03c P04 P05 P06 P07 P08 P09 C01 C02 AF01 AF02 G01 G02 G03.
+Regras (item 9.2 e 9.3): P01 P02 P03a P03b P03c P04 P05 P06 P07 P08 P09 AF01 AF02 G01 G02 G03.
+  C01/C02 (reembolso/chargeback e compra de Cursos): fora de escopo. A venda de cursos tem meio de pagamento
+  próprio, fora da conta Trio, que é exclusiva do Poker. Removidas dos parâmetros, da execução e do selftest.
   G01/G02 nascem no banco, na hora do screening (trigger public.screening_effects, BO-POL-01 itens 7.2/7.3/6.4.4);
   aqui só são contados. Efeitos automáticos de retenção viram flags no alerta (hold_withdrawals / hold_deposits /
   hold_play) e a trigger public.ledger_kyc_limits recusa o movimento enquanto o alerta estiver aberto.
@@ -18,9 +20,6 @@ regra fica pronta e, na produção, sai com status "sem fonte de dado ainda"):
   client_sessions(user_id uuid, created_at timestamptz, ip inet, device_id text, country text, is_vpn boolean,
                   table_id uuid null, real_money boolean)                                    P03a P03b(mesa) P08 P09 AF01
   pix_in(user_id uuid, created_at timestamptz, amount_cents bigint, payer_doc_hash text, payer_account text)  P03c P07
-  course_orders(id text, created_at timestamptz, buyer_cpf_hash text, buyer_name text, payer_doc_hash text,
-                payer_name text, device_id text, ip text, card_hash text, product_id text,
-                status text  -- paid | refund_requested | refunded | chargeback | med)               C01 C02
   affiliate_referrals(affiliate_user_id uuid, referred_user_id uuid, created_at timestamptz)          AF01
   affiliate_commissions(affiliate_user_id uuid, month date, commission_cents bigint, sales_cents bigint,
                         refunded_cents bigint)                                                      AF02
@@ -55,7 +54,7 @@ BRT = dt.timezone(dt.timedelta(hours=-3))
 PARAMS = {
     "lookback_days": 120,
     "high_risk_factor": 0.5,             # 9.4: cliente de alto risco -> gatilhos de valor e quantidade de P01, P04,
-    "high_risk_rules": ["P01", "P04", "P05", "C01", "AF02"],   # P05, C01 e AF02 caem pela metade
+    "high_risk_rules": ["P01", "P04", "P05", "AF02"],   # P05 e AF02 caem pela metade
     "session_gap_min": 30,               # mãos da mesma mesa com intervalo > 30 min = sessões diferentes
     "P01": {"min_withdraw": 20_000, "high_withdraw": 200_000, "window_h": 72, "turnover_mult": 1.0},
     "P02": {"window_days": 7, "min_net": 50_000, "share_of_losses": 0.60, "min_common_sessions": 3},
@@ -71,9 +70,6 @@ PARAMS = {
     "P07": {"window_days": 30, "high_count": 2},
     "P08": {"window_days": 30, "min_common_sessions": 10, "min_share": 0.50, "raise_ratio_max": 1 / 3},
     "P09": {"window_days": 30, "medium_count": 3},
-    "C01": {"refund_days": 90, "refund_count": 2, "chargeback_count": 1, "chargeback_high": 2,
-            "same_product_days": 30, "same_product_count": 3},
-    "C02": {"window_days": 30, "distinct_cpfs": 3},
     "AF02": {"mult_vs_avg": 3.0, "min_sum": 500_000, "avg_months": 3, "refund_rate": 0.15},
     "kyc_month_limit": {0: 0, 1: 200_000, 2: 1_000_000, 3: 5_000_000},  # BO-POL-02 7.1 (nível 3: menor entre isso e a renda)
 }
@@ -90,8 +86,6 @@ RULES_DOC = {
     "P07": ("Depósito por terceiro", "Valor não creditado e devolvido ao pagador"),
     "P08": ("Conluio em mesa", "Alta: saques retidos"),
     "P09": ("Acesso de fora do Brasil ou por VPN/proxy", "Sessão de dinheiro real recusada"),
-    "C01": ("Reembolso e chargeback em série", "Novas compras do CPF suspensas até a análise"),
-    "C02": ("Compra com dados de terceiros", "Acesso ao curso só após confirmação"),
     "AF01": ("Auto-indicação de Afiliado", "Comissão da venda retida"),
     "AF02": ("Comissão atípica", "Lote do Afiliado retido até a análise"),
     "G01": ("Lista ONU/CSNU confirmada", "Bloqueio imediato + indisponibilidade (trigger screening_effects)"),
@@ -128,7 +122,7 @@ def brl(c):
 
 
 class Src:
-    OPTIONAL = ["client_sessions", "pix_in", "course_orders", "affiliate_referrals", "affiliate_commissions"]
+    OPTIONAL = ["client_sessions", "pix_in", "affiliate_referrals", "affiliate_commissions"]
 
     def __init__(self, db, schema="public"):
         self.s = schema
@@ -187,7 +181,6 @@ def load(db, src, p=PARAMS, include_test_credits=False):
         d["ipsess"] += [r for r in d["client_sessions"] if r["ip"]]
     d["pix_in"] = db.query(f"select user_id::text, created_at, amount_cents, payer_doc_hash, payer_account from {src.t('pix_in')}") \
         if src.has("pix_in") else None
-    d["course_orders"] = db.query(f"select * from {src.t('course_orders')}") if src.has("course_orders") else None
     d["aff_ref"] = db.query(f"select affiliate_user_id::text, referred_user_id::text from {src.t('affiliate_referrals')}") \
         if src.has("affiliate_referrals") else None
     d["aff_com"] = db.query(f"select affiliate_user_id::text, month, commission_cents, sales_cents, refunded_cents "
@@ -601,60 +594,7 @@ def P09(d, p):
             for u, rows in g.items()], "ok"
 
 
-def C01(d, p):
-    if d["course_orders"] is None:
-        return [], f"{NO_SOURCE}: vendas de Cursos ficam na plataforma de infoprodutos (course_orders não existe)"
-    q = p["C01"]
-    now = now_utc()
-    out = []
-    for key in ("buyer_cpf_hash", "device_id", "card_hash"):
-        g = defaultdict(list)
-        for o in d["course_orders"]:
-            if o.get(key):
-                g[o[key]].append(o)
-        for val, rows in g.items():
-            ref = [o for o in rows if o["status"] == "refunded" and (now - ts(o["created_at"])).days <= q["refund_days"]]
-            cb = [o for o in rows if o["status"] in ("chargeback", "med")]
-            if len(cb) >= q["chargeback_count"] or len(ref) >= q["refund_count"]:
-                sev = "high" if len(cb) >= q["chargeback_high"] else "medium"
-                out.append(A("C01", sev, None, f"{key}|{val}|{len(ref)}|{len(cb)}",
-                             {"chave": key, "valor": val, "reembolsos_90d": len(ref), "chargebacks_ou_med": len(cb),
-                              "efeito": "novas compras do CPF suspensas até a análise"}))
-    g = defaultdict(list)
-    for o in d["course_orders"]:
-        if o["status"] in ("refund_requested", "refunded") and (now - ts(o["created_at"])).days <= q["same_product_days"]:
-            for key in ("device_id", "ip"):
-                if o.get(key):
-                    g[(key, o[key], o["product_id"])].append(o)
-    for (key, val, prod), rows in g.items():
-        if len(rows) >= q["same_product_count"]:
-            out.append(A("C01", "medium", None, f"produto|{key}|{val}|{prod}|{len(rows)}",
-                         {"chave": key, "valor": val, "produto": prod, "pedidos_reembolso_30d": len(rows)}))
-    return out, "ok"
-
-
-def C02(d, p):
-    if d["course_orders"] is None:
-        return [], f"{NO_SOURCE}: course_orders não existe"
-    q = p["C02"]
-    now = now_utc()
-    out = []
-    for o in d["course_orders"]:
-        diff_doc = o.get("payer_doc_hash") and o.get("buyer_cpf_hash") and o["payer_doc_hash"] != o["buyer_cpf_hash"]
-        diff_name = o.get("payer_name") and o.get("buyer_name") and C.norm_name(o["payer_name"]) != C.norm_name(o["buyer_name"])
-        if diff_doc or diff_name:
-            out.append(A("C02", "medium", None, f"pedido|{o['id']}",
-                         {"pedido": o["id"], "cpf_pagador_diferente": bool(diff_doc), "nome_pagador_diferente": bool(diff_name),
-                          "efeito": "acesso ao curso só após confirmação"}))
-    for key in ("device_id", "card_hash"):
-        g = defaultdict(set)
-        for o in d["course_orders"]:
-            if o.get(key) and o.get("buyer_cpf_hash") and (now - ts(o["created_at"])).days <= q["window_days"]:
-                g[o[key]].add(o["buyer_cpf_hash"])
-        for val, cpfs in g.items():
-            if len(cpfs) >= q["distinct_cpfs"]:
-                out.append(A("C02", "medium", None, f"{key}|{val}|{len(cpfs)}", {"chave": key, "valor": val, "cpfs_distintos": len(cpfs)}))
-    return out, "ok"
+# C01 e C02 (Cursos): fora de escopo; cursos usam meio de pagamento próprio, fora da conta Trio (BO-POL-01, item 2.2).
 
 
 def AF01(d, p):
@@ -741,7 +681,7 @@ def G03(d, p):
     return out, st
 
 
-RULES = [P01, P02, P03a, P03b, P03c, P04, P05, P06, P07, P08, P09, C01, C02, AF01, AF02, G01, G02, G03]
+RULES = [P01, P02, P03a, P03b, P03c, P04, P05, P06, P07, P08, P09, AF01, AF02, G01, G02, G03]
 
 
 def run_rules(d, p=PARAMS):
@@ -841,8 +781,6 @@ def selftest_rules(db, keep=False):
       country text, is_vpn boolean not null default false, table_id uuid, real_money boolean not null default true);
     create table {sch}.pix_in (user_id uuid, created_at timestamptz not null default now(), amount_cents bigint,
       payer_doc_hash text, payer_account text);
-    create table {sch}.course_orders (id text primary key, created_at timestamptz not null default now(), buyer_cpf_hash text,
-      buyer_name text, payer_doc_hash text, payer_name text, device_id text, ip text, card_hash text, product_id text, status text);
     create table {sch}.affiliate_referrals (affiliate_user_id uuid, referred_user_id uuid, created_at timestamptz default now());
     create table {sch}.affiliate_commissions (affiliate_user_id uuid, month date, commission_cents bigint, sales_cents bigint,
       refunded_cents bigint);
@@ -926,16 +864,6 @@ def selftest_rules(db, keep=False):
     sql.append(f"insert into {sch}.client_sessions (user_id, ip, device_id, country, is_vpn) values "
                f"('{U['p09']}', '192.0.2.1', 'dev-p09', 'PT', false), ('{U['p09']}', '192.0.2.2', 'dev-p09', 'BR', true), "
                f"('{U['p09']}', '192.0.2.3', 'dev-p09', 'US', false);")
-    # C01: 2 reembolsos em 90 dias pelo mesmo CPF + 1 MED; C02: pagador diferente; 3 CPFs no mesmo cartão
-    sql.append(f"""insert into {sch}.course_orders (id, created_at, buyer_cpf_hash, buyer_name, payer_doc_hash, payer_name, device_id,
-      ip, card_hash, product_id, status) values
-      ('o1', now() - interval '20 days', 'cpfC01', 'Ana Teste', 'cpfC01', 'Ana Teste', 'devC1', '10.0.0.1', 'card1', 'curso-a', 'refunded'),
-      ('o2', now() - interval '10 days', 'cpfC01', 'Ana Teste', 'cpfC01', 'Ana Teste', 'devC1', '10.0.0.1', 'card1', 'curso-b', 'refunded'),
-      ('o3', now() - interval '5 days',  'cpfC01', 'Ana Teste', 'cpfC01', 'Ana Teste', 'devC1', '10.0.0.1', 'card1', 'curso-c', 'med'),
-      ('o4', now() - interval '2 days',  'cpfX', 'Bruno Teste', 'cpfY', 'Carla Outra', 'devC2', '10.0.0.2', 'card9', 'curso-a', 'paid'),
-      ('o5', now() - interval '2 days',  'cpfZ1', 'Dan Teste', 'cpfZ1', 'Dan Teste', 'devC3', '10.0.0.3', 'card7', 'curso-a', 'paid'),
-      ('o6', now() - interval '2 days',  'cpfZ2', 'Eva Teste', 'cpfZ2', 'Eva Teste', 'devC4', '10.0.0.4', 'card7', 'curso-a', 'paid'),
-      ('o7', now() - interval '2 days',  'cpfZ3', 'Fred Teste', 'cpfZ3', 'Fred Teste', 'devC5', '10.0.0.5', 'card7', 'curso-a', 'paid');""")
     # AF01: indicado no mesmo dispositivo do afiliado; AF02: comissão 10x a média e acima de R$ 5.000
     sql.append(f"insert into {sch}.client_sessions (user_id, ip, device_id, country) values "
                f"('{U['af']}', '198.51.100.50', 'dev-AF', 'BR'), ('{U['afref']}', '198.51.100.51', 'dev-AF', 'BR');")

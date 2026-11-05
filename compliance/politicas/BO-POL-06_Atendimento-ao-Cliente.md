@@ -11,7 +11,7 @@
 
 ## 1. Objetivo e abrangência
 
-1.1. Definir canais, prazos e regras de atendimento para compradores de cursos e conteúdo digital, afiliados e, quando a operação existir, jogadores da plataforma de poker, conforme o Código de Defesa do Consumidor (Lei 8.078/1990) e a LGPD (Lei 13.709/2018).
+1.1. Definir canais, prazos e regras de atendimento para jogadores da plataforma de poker (hoje em fase pré-operacional, somente com fichas de teste) e afiliados, conforme o Código de Defesa do Consumidor (Lei 8.078/1990) e a LGPD (Lei 13.709/2018).
 
 ## 2. Definições
 
@@ -23,12 +23,12 @@
 
 | Canal | Endereço | Uso |
 |---|---|---|
-| Site institucional (canal oficial) | https://bo-2iobkcvnv5nr.vercel.app/contato | Atendimento, reclamação, privacidade (LGPD) e denúncia, com opção anônima e número de protocolo; mensagens gravadas em `site_messages`, revisadas pelo Diretor de Compliance ao menos uma vez por dia útil |
+| Site institucional (canal oficial) | https://blackopsltda.com/contato | Atendimento, reclamação, privacidade (LGPD) e denúncia, com opção anônima e número de protocolo; mensagens gravadas em `site_messages`, revisadas pelo Diretor de Compliance ao menos uma vez por dia útil |
 | WhatsApp | +55 48 8500-5705 | Dúvidas, suporte, reclamações |
-| E-mail | michael@mikhaeu.com | Reclamações formais, contestações, reembolsos, pedidos de titulares de dados (LGPD), denúncias (assunto "DENÚNCIA") |
+| E-mail | michael@mikhaeu.com | Reclamações formais, contestações, devoluções, pedidos de titulares de dados (LGPD), denúncias (assunto "DENÚNCIA") |
 | Instagram | @mikhaeu_ (mensagem direta) | Dúvidas e primeiro contato; casos que envolvam dados pessoais ou valores são levados ao e-mail ou ao WhatsApp |
 
-3.1. O canal oficial já está publicado no site institucional desde 05/11/2026. Os demais canais serão publicados na página de venda dos cursos em até 30 dias desta versão e na plataforma de poker antes do início da operação com dinheiro real. A empresa nunca pede senha, código de acesso ou código de verificação ao cliente.
+3.1. O canal oficial já está publicado no site institucional desde 05/11/2026. Os demais canais serão publicados na plataforma de poker antes do início da operação com dinheiro real. A empresa nunca pede senha, código de acesso ou código de verificação ao cliente.
 
 ## 4. Prazos (SLA)
 
@@ -36,7 +36,6 @@
 |---|---|---|
 | Dúvida ou suporte | 1 dia útil | 3 dias úteis |
 | Reclamação | 1 dia útil | 5 dias úteis |
-| Pedido de reembolso de curso | 1 dia útil | 5 dias úteis, conforme item 6 |
 | Contestação de Pix ou notificação de MED | Mesmo dia útil | Dentro do prazo informado pela Trio no procedimento do MED, nunca acima de 5 dias úteis |
 | Pedido de titular de dados | 1 dia útil | Até 15 dias (BO-POL-05) |
 | Pedido de autoexclusão | Efeito imediato no sistema | Confirmação em 1 dia útil |
@@ -49,19 +48,15 @@
 
 5.2. Reclamação que revele possível fraude, uso de conta de terceiro ou indício de lavagem de dinheiro é encaminhada ao Diretor, que segue o BO-POL-01; nesse caso, o cliente não é informado da análise de PLD/FTP.
 
-## 6. Reembolso
+## 6. Saldo e devoluções
 
-6.1. **Cursos e conteúdo digital**: o comprador pode desistir em até 7 dias da compra feita online, com devolução integral (CDC, art. 49). O pedido é processado pela plataforma de infoprodutos, que devolve pelo mesmo meio de pagamento. Fora desse prazo, o reembolso depende de aprovação do Administrador (BO-GOV-01).
-
-6.2. **Poker (quando houver dinheiro real)**: o saldo disponível do jogador pode ser sacado a qualquer tempo, somente para conta do mesmo CPF, observados os limites e análises do BO-GOV-01. Fichas perdidas em mãos encerradas não são reembolsáveis; erro comprovado de sistema é corrigido por lançamento de ajuste aprovado conforme BO-GOV-01.
+6.1. **Poker (quando houver dinheiro real)**: o saldo disponível do jogador pode ser sacado a qualquer tempo, somente para conta do mesmo CPF, observados os limites e análises do BO-GOV-01. Fichas perdidas em mãos encerradas não são reembolsáveis; erro comprovado de sistema é corrigido por lançamento de ajuste aprovado conforme BO-GOV-01.
 
 ## 7. Contestação de Pix e MED
 
 7.1. **Cliente que diz não reconhecer um Pix** feito à empresa: orientar a registrar a contestação no próprio banco (que aciona o MED); a empresa não faz devolução por fora do mecanismo, para não devolver duas vezes nem a pessoa errada.
 
 7.2. **Notificação de MED recebida pela Trio**: o Diretor (a) bloqueia de forma cautelar a conta do jogador ligada ao Pix; (b) reúne as evidências (cadastro, CPF do pagador, histórico do ledger, mãos jogadas, saques); (c) responde à Trio no prazo informado; (d) devolve o valor quando a análise ou o mecanismo assim determinar; (e) registra o caso e avalia a comunicação ao COAF (BO-POL-01). A perda é coberta pelo caixa próprio da empresa, nunca pelo saldo de outros jogadores (BO-POL-04).
-
-7.3. **Chargeback de cartão** em venda de curso: tratado pela plataforma de infoprodutos; a empresa fornece a prova de entrega do acesso quando solicitada.
 
 ## 8. Jogo responsável
 
@@ -77,7 +72,7 @@
 
 ## 9. Papéis, registros e revisão
 
-9.1. O atendimento é feito por Michael; o Administrador aprova as exceções de reembolso e substitui Michael na ausência dele.
+9.1. O atendimento é feito por Michael; o Administrador aprova os lançamentos de ajuste (BO-GOV-01) e substitui Michael na ausência dele.
 
 9.2. Registros de atendimento são guardados por 5 anos; os ligados a MED, contestação ou PLD/FTP, por 10 anos.
 

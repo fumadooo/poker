@@ -26,11 +26,10 @@
 
 2.1. Esta política cobre:
 
-- Clientes pessoa física de Cursos;
 - Clientes pessoa física do Poker. O Poker não aceita pessoa jurídica como jogadora;
 - Afiliados pessoa física e pessoa jurídica.
 
-2.2. Hoje o Poker opera apenas com fichas de teste. Os níveis de verificação que liberam depósito e saque (item 7) só produzem efeito financeiro após a liberação do Poker com dinheiro real, nas condições da BO-POL-01, item 2.2(c).
+2.2. Hoje o Poker opera apenas com fichas de teste. Os níveis de verificação que liberam depósito e saque (item 7) só produzem efeito financeiro após a liberação do Poker com dinheiro real, nas condições da BO-POL-01, item 2.2(a).
 
 ## 3. Marco legal
 
@@ -53,7 +52,7 @@
 
 ## 5. Identificação e qualificação da pessoa física
 
-5.1. **Dados exigidos de todo Cliente**, antes de qualquer compra ou movimentação:
+5.1. **Dados exigidos de todo Cliente**, antes de qualquer movimentação:
 
 - (a) nome completo;
 - (b) CPF;
@@ -63,7 +62,7 @@
 - (f) declaração de condição de PEP;
 - (g) aceite dos termos de uso e da declaração de veracidade, com ciência do art. 299 do Código Penal.
 
-5.2. **Dados exigidos a partir do nível 1**, nos casos de Poker com dinheiro real, Cursos acima da faixa da BO-POL-01, item 6.2, e Afiliados:
+5.2. **Dados exigidos a partir do nível 1**, nos casos de Poker com dinheiro real e de Afiliados:
 
 - endereço residencial completo (logradouro, número, complemento, bairro, cidade, UF e CEP);
 - ocupação.
@@ -123,19 +122,13 @@ Se qualquer critério falhar, a pessoa pode tentar de novo até 2 vezes. Na terc
 - (d) O Diretor de Compliance pode reduzir os limites de qualquer Cliente com base em risco ou em alerta, e registra a decisão em `audit_log`. O aumento só ocorre pela troca de nível.
 - (e) Os limites de saque valem sobre o saldo disponível do Cliente. Não autorizam sacar valor depositado e não jogado sem a análise da regra P01 (BO-POL-01, item 9.2).
 
-7.3. **Cursos.** A compra de Cursos não depende do nível do Poker. Segue a diligência simplificada da BO-POL-01, item 6.1. A diligência sobe conforme as compras do mesmo CPF em 12 meses:
-
-- R$ 10.000 ou mais: exige nível 1;
-- R$ 30.000 ou mais: exige comprovação de origem de recursos (item 8).
-
 ## 8. Comprovação de origem de recursos
 
 8.1. **Quando é exigida**
 
 - (a) na subida para o nível 3;
 - (b) quando o Cliente for classificado como alto risco (BO-POL-01, item 5);
-- (c) quando o alerta P05 tiver severidade alta;
-- (d) quando as compras de Cursos do mesmo CPF chegarem a R$ 30.000 ou mais em 12 meses.
+- (c) quando o alerta P05 tiver severidade alta.
 
 8.2. **Documentos aceitos** (pelo menos um):
 
@@ -236,7 +229,7 @@ Comissão só é paga após KYC completo. Comissão devida a Afiliado com KYC in
 
 ## 12. Meios de pagamento e mesma titularidade
 
-12.1. Na conta da Empresa na Trio, os recebimentos de Clientes e os pagamentos a Clientes e Afiliados são feitos **somente por Pix**. Vendas de Cursos com cartão ocorrem exclusivamente na plataforma de infoprodutos, que é a recebedora dessas vendas.
+12.1. Na conta da Empresa na Trio, os recebimentos de Clientes e os pagamentos a Clientes e Afiliados são feitos **somente por Pix**. A conta na Trio é usada exclusivamente para o Poker.
 
 12.2. **Depósito no Poker**
 

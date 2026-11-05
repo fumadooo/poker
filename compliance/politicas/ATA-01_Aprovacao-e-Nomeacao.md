@@ -19,6 +19,7 @@
 2. Nomeação do Diretor de Compliance e PLD/FTP.
 3. Nomeação do Encarregado pelo Tratamento de Dados Pessoais.
 4. Instituição do Comitê de Compliance.
+5. Transição da sociedade para o poker online e dedicação da conta de pagamento a essa atividade.
 
 ## 2. Deliberações
 
@@ -40,14 +41,16 @@ Examinados os documentos, os sócios deliberaram, por unanimidade e sem ressalva
 
 2.4. **Instituir o Comitê de Compliance**, composto pelos dois sócios, com reuniões ordinárias mensais e extraordinárias em até 24 horas após alerta ou incidente crítico, competências, quórum e forma de deliberação definidos no BO-GOV-01, devendo a primeira reunião ordinária ocorrer até 07/12/2026.
 
-2.5. **Consignar** que:
+2.5. **Deliberar** conduzir a transição da sociedade, que atua em educação digital (cursos livres e conteúdo), para concentrar o crescimento na plataforma própria de poker online (Texas Hold'em entre jogadores, sem banca, com receita exclusivamente de rake de 5%), hoje em fase pré-operacional, somente com fichas de teste, e **dedicar** a conta de pagamento na Trio exclusivamente a essa atividade: Pix de depósito e de saque dos jogadores, pagamento de afiliados em lote e cartão corporativo para mídia paga. A venda de cursos tem processamento próprio, fora da Trio, e não passa por essa conta. O objeto social atual (CNAE 8599-6/99 e 6391-7/00) ainda não inclui o poker; sua alteração, o parecer jurídico e a aprovação da Trio permanecem condições prévias para operar com dinheiro real (item 2.6, d).
+
+2.6. **Consignar** que:
 
 - a) as nomeações dos itens 2.2 e 2.3 são atos internos de atribuição de função, por prazo indeterminado, revogáveis por deliberação dos sócios;
 - b) esta ata **não altera o contrato social**: a administração e a representação da sociedade permanecem exclusivamente com o administrador Raphael Mendonça Barros Silva, nos termos da cláusula nona, e as funções aqui atribuídas não conferem poderes de administração ou de representação da sociedade;
 - c) o administrador garantirá ao Diretor de Compliance e PLD/FTP acesso irrestrito às informações, sistemas e registros necessários à função, e os recursos necessários ao Programa de Compliance;
 - d) a sociedade não operará poker online com dinheiro real antes de cumpridos os pré-requisitos do Anexo A do BO-POL-04, inclusive parecer jurídico, alteração do objeto social por instrumento próprio e aprovação da Trio.
 
-2.6. Os sócios declaram ter lido as políticas aprovadas e assumem o compromisso de cumpri-las.
+2.7. Os sócios declaram ter lido as políticas aprovadas e assumem o compromisso de cumpri-las.
 
 ## 3. Encerramento
 

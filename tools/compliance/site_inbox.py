@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Caixa do canal do site (bo-2iobkcvnv5nr.vercel.app/contato): lista mensagens não encerradas em run/site_inbox.md.
+"""Caixa do canal do site (blackopsltda.com/contato): lista mensagens não encerradas em run/site_inbox.md.
 Agendada de hora em hora ("POKER Site Inbox"). Denúncias primeiro. python -I tools/compliance/site_inbox.py"""
 import os, sys, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import common as C

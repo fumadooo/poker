@@ -26,7 +26,6 @@
 
 2.1. Aplica-se a todos os cadastros mantidos pela Empresa:
 
-- Clientes de Cursos;
 - Clientes do Poker;
 - Afiliados pessoa física e pessoa jurídica;
 - fornecedores relevantes.
@@ -66,19 +65,7 @@
 
 ## 5. Dados obrigatórios por tipo de cliente
 
-5.1. **Cliente pessoa física de Cursos.** Aplica-se a diligência simplificada.
-
-| Dado | Obrigatório |
-|---|---|
-| Nome completo, CPF, data de nascimento (18 anos ou mais) | Sim |
-| E-mail e celular verificados | Sim |
-| Declaração de PEP | Sim |
-| Aceite dos termos e da declaração de veracidade | Sim |
-| Endereço e ocupação | Só a partir de R$ 10.000 em compras em 12 meses (BO-POL-02, item 7.3) |
-| Comprovação de origem de recursos | Só a partir de R$ 30.000 em compras em 12 meses |
-| Dados técnicos da compra | Sim |
-
-5.2. **Cliente pessoa física do Poker**, por nível de verificação (BO-POL-02, item 7):
+5.1. **Cliente pessoa física do Poker**, por nível de verificação (BO-POL-02, item 7):
 
 | Dado | Nível 0 | Nível 1 | Nível 2 | Nível 3 |
 |---|---|---|---|---|
@@ -91,13 +78,13 @@
 | Pesquisa de mídia negativa | – | – | – | Sim |
 | Dados técnicos (IP e dispositivo de cada sessão) | Sim | Sim | Sim | Sim |
 
-5.3. **Afiliado pessoa física.** Exige-se:
+5.2. **Afiliado pessoa física.** Exige-se:
 
-- todos os dados do nível 2 da tabela 5.2;
+- todos os dados do nível 2 da tabela 5.1;
 - chave Pix de recebimento com o mesmo CPF;
 - aceite do contrato de afiliação.
 
-5.4. **Afiliado pessoa jurídica.** Exige-se:
+5.3. **Afiliado pessoa jurídica.** Exige-se:
 
 - CNPJ, razão social, nome fantasia, endereço e CNAE principal;
 - contrato social ou certificado de MEI;
@@ -109,7 +96,7 @@
 - e-mail e celular verificados;
 - aceite do contrato de afiliação.
 
-5.5. **Fornecedor relevante.** Exige-se:
+5.4. **Fornecedor relevante.** Exige-se:
 
 - CNPJ, razão social e endereço;
 - quadro de sócios;
@@ -117,7 +104,7 @@
 - objeto do contrato;
 - resultado do screening (BO-POL-01, item 12.2).
 
-5.6. **Princípio da necessidade.** Não são coletados dados além dos listados acima. Dados sensíveis só são coletados no caso da biometria da prova de vida, tratada no item 9.
+5.5. **Princípio da necessidade.** Não são coletados dados além dos listados acima. Dados sensíveis só são coletados no caso da biometria da prova de vida, tratada no item 9.
 
 ## 6. Fontes de verificação e tratamento de divergência
 
@@ -172,13 +159,13 @@ Se o titular não responder em 30 dias, o cadastro com divergência é encerrado
 
 ## 7. Cadastro incompleto bloqueia movimentação
 
-7.1. **Regra geral.** Nenhuma movimentação financeira acontece com cadastro fora do status `completo` para o nível exigido. Isso inclui depósito, saque, pagamento de comissão, compra acima das faixas e reembolso para conta diferente da de origem. O bloqueio é aplicado pelo sistema antes da liquidação. Não depende de ação manual.
+7.1. **Regra geral.** Nenhuma movimentação financeira acontece com cadastro fora do status `completo` para o nível exigido. Isso inclui depósito, saque, pagamento de comissão e devolução para conta diferente da de origem. O bloqueio é aplicado pelo sistema antes da liquidação. Não depende de ação manual.
 
 7.2. **Efeito de cada status**
 
 | Status | Efeito |
 |---|---|
-| `pendente` | Sem depósito, saque ou comissão. Só fichas de teste e compra de Cursos na diligência simplificada |
+| `pendente` | Sem depósito, saque ou comissão. Só fichas de teste, na diligência simplificada |
 | `em_divergencia` | Movimentação bloqueada até a solução |
 | `atualizacao_vencida` | Novos depósitos, saques e comissões bloqueados até a atualização (BO-POL-02, item 10) |
 | `bloqueado` | Toda movimentação bloqueada; indisponibilidade quando for sanção do CSNU |
@@ -275,7 +262,6 @@ Se o titular não responder em 30 dias, o cadastro com divergência é encerrado
   - a Trio, para execução dos pagamentos e de PLD/FTP;
   - o bureau e o fornecedor de prova de vida, como operadores;
   - o provedor de infraestrutura (Supabase), como operador;
-  - a plataforma de infoprodutos, nas vendas que ela processa;
   - autoridades, por obrigação legal ou ordem.
 - Há contrato com cláusula de proteção de dados com cada operador.
 - Quando um operador armazenar dados fora do Brasil, a transferência internacional segue as hipóteses previstas na LGPD.

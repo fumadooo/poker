@@ -12,7 +12,7 @@
 
 ## 1. Objetivo
 
-1.1. Estabelecer como a BLACK OPS LTDA identifica, avalia, trata, monitora e reporta os riscos das suas atividades, com controles proporcionais ao porte da empresa (2 sócios, operação 100% digital) e executáveis pelas pessoas nomeadas nesta política.
+1.1. Estabelecer como a BLACK OPS LTDA identifica, avalia, trata, monitora e reporta os riscos das suas atividades, com controles proporcionais ao porte da empresa (2 sócios, operação 100% digital) e executáveis pelas pessoas nomeadas nesta política. A equipe tem experiência anterior com operação digital de alto volume transacional.
 
 1.2. Garantir que nenhuma atividade nova, em especial a operação de poker online com dinheiro real, comece antes que os seus riscos estejam avaliados e que os controles marcados como pré-requisito estejam implementados e verificados.
 
@@ -20,9 +20,9 @@
 
 2.1. Aplica-se a todas as atividades da empresa:
 
-- a) atividade atual: venda online de cursos livres e conteúdo digital (audiência no Instagram @mikhaeu_), por plataforma de infoprodutos;
-- b) uso da conta de pagamento na Trio: Pix recebido e enviado (QR Code e transferência), pagamento de afiliados em lote e cartão corporativo pré-pago para mídia paga;
-- c) plataforma própria de poker online (jogo de habilidade), hoje em desenvolvimento e operando apenas com fichas de teste, sem dinheiro real.
+- a) educação digital (cursos livres e conteúdo), atividade atual da empresa, com faturamento de cerca de R$ 1 milhão; a venda de cursos tem processamento próprio, fora da Trio, e não passa pela conta de pagamento. A atividade de educação usa meio de pagamento próprio, fica fora do escopo da conta Trio e também observa os princípios de PLD/FTP, KYC e LGPD destas políticas.
+- b) foco da transição em curso: plataforma própria de poker online (jogo de habilidade; Texas Hold'em entre jogadores, sem banca, com receita exclusivamente de rake de 5%), em fase pré-operacional, operando apenas com fichas de teste, sem dinheiro real;
+- c) uso da conta de pagamento na Trio, exclusivamente para o poker: Pix de depósito e de saque dos jogadores (QR Code e transferência), pagamento de afiliados em lote e cartão corporativo pré-pago para mídia paga.
 
 2.2. Aplica-se aos dois sócios, a qualquer colaborador ou prestador de serviço futuro e aos fornecedores, na medida dos respectivos contratos.
 
@@ -61,7 +61,7 @@
 - f) prometer, oferecer ou dar vantagem indevida a agente público (Lei 12.846/2013), ou aceitar vantagem indevida de qualquer pessoa;
 - g) chave de serviço (`service_role`) ou credencial administrativa exposta em código de cliente, repositório ou mensagem.
 
-5.2. **Baixo apetite** (aceito apenas dentro dos limites dos KRIs da seção 8): fraude com Pix e MED, chargeback e reembolso de vendas, alertas de PLD em atraso, divergências de reconciliação explicadas em D+1.
+5.2. **Baixo apetite** (aceito apenas dentro dos limites dos KRIs da seção 8): fraude com Pix e MED, alertas de PLD em atraso, divergências de reconciliação explicadas em D+1.
 
 5.3. **Apetite moderado**: indisponibilidade técnica curta da plataforma de poker em fichas de teste; risco reputacional próprio de um criador de conteúdo com audiência pública, desde que tratado conforme o BO-POL-06.
 
@@ -77,21 +77,21 @@ Controles: no POKER, saldo só se move por funções transacionais no banco (`bu
 
 ### 6.2. Risco de PLD/FTP
 
-Uso da empresa para lavagem de dinheiro ou financiamento do terrorismo (Lei 9.613/1998; Lei 13.260/2016). Pontos concretos no poker: depósito e saque sem jogo, transferência de valor entre jogadores por perda intencional (chip dumping), contas de passagem, uso de identidade de terceiros. Na atividade atual: pagamento de comissão a afiliados não identificados.
+Uso da empresa para lavagem de dinheiro ou financiamento do terrorismo (Lei 9.613/1998; Lei 13.260/2016). Pontos concretos no poker: depósito e saque sem jogo, transferência de valor entre jogadores por perda intencional (chip dumping), contas de passagem, uso de identidade de terceiros. Nos afiliados: pagamento de comissão a afiliados não identificados.
 
 Controles: tratados no BO-POL-01, BO-POL-02 e BO-POL-03 (identificação do cliente, screening de listas, monitoramento, comunicação ao COAF). Nesta política, entram na matriz e nos KRIs.
 
 ### 6.3. Risco de fraude
 
 - a) **Pix recebido de origem fraudulenta e MED**: um depósito feito com conta invadida ou por vítima de golpe pode ser bloqueado e devolvido pelo MED depois de o valor ter sido creditado ao jogador e eventualmente sacado ou perdido para outro jogador. Controles: crédito do depósito somente quando o CPF do pagador recebido com o Pix for igual ao CPF cadastrado do jogador; saque somente para conta do mesmo CPF; limites de depósito e de saque menores para contas novas; retenção para análise do saque de valor depositado e não jogado; resposta a toda notificação de MED dentro do prazo informado pela Trio; bloqueio cautelar da conta do jogador envolvido.
-- b) **Chargeback**: hoje só existe nas vendas de cursos pagas com cartão na plataforma de infoprodutos, que processa e arbitra a contestação. Controles: política de reembolso clara (BO-POL-06), registro de entrega do acesso pela plataforma, acompanhamento da taxa mensal. A Trio não processa cartão de crédito de clientes para a empresa; o cartão corporativo é pré-pago e usado só para mídia.
-- c) **Fraude interna e de afiliados**: comissão calculada sobre rake ou vendas inexistentes. Controles: comissão calculada a partir de registros de sistema (linhas de rake no ledger do POKER, relatório de vendas da plataforma de infoprodutos); lote aprovado pelo Administrador.
+- b) **Chargeback**: na conta Trio não há recebimento por cartão; depósitos de jogadores são aceitos somente por Pix (BO-POL-01, item 8.1). A Trio não processa cartão de crédito de clientes para a empresa; o cartão corporativo é pré-pago e usado só para mídia.
+- c) **Fraude interna e de afiliados**: comissão calculada sobre rake inexistente. Controles: comissão calculada a partir de registros de sistema (linhas de rake no ledger do POKER); lote aprovado pelo Administrador.
 
 ### 6.4. Risco de crédito
 
-A empresa não concede crédito, não antecipa saldo a jogadores e não financia jogo. O cartão corporativo é pré-pago. A exposição de crédito existe em três pontos: valor de MED ou chargeback devolvido depois de já repassado (perda própria); comissão de afiliado paga antes da confirmação do valor que a gerou; adiantamento a fornecedor.
+A empresa não concede crédito, não antecipa saldo a jogadores e não financia jogo. O cartão corporativo é pré-pago. A exposição de crédito existe em três pontos: valor de MED devolvido depois de já repassado (perda própria); comissão de afiliado paga antes da confirmação do valor que a gerou; adiantamento a fornecedor.
 
-Controles: saldo de jogador nunca negativo (`ledger_guard`); comissão de afiliado paga só sobre período fechado e conciliado; perdas por MED e chargeback registradas e cobertas por capital próprio, nunca pelo saldo de jogadores.
+Controles: saldo de jogador nunca negativo (`ledger_guard`); comissão de afiliado paga só sobre período fechado e conciliado; perdas por MED registradas e cobertas por capital próprio, nunca pelo saldo de jogadores.
 
 ### 6.5. Risco de liquidez
 
@@ -101,13 +101,13 @@ Na operação com dinheiro real, o saldo de jogadores é dinheiro de terceiros. 
 - b) a cobertura (saldo da conta segregada ÷ saldo de jogadores no ledger) é de no mínimo 100% em todo fechamento diário;
 - c) a reconciliação é diária: saldo de jogadores (ledger + fichas em mesa) contra o extrato da conta segregada, e cada Pix recebido e enviado no dia contra uma linha do ledger; diferença não explicada em D+1 é incidente (seção 10);
 - d) o rake só é transferido da conta segregada para a conta operacional depois da reconciliação do dia;
-- e) o caixa próprio da empresa deve cobrir as perdas esperadas com MED e chargeback de 1 mês.
+- e) o caixa próprio da empresa deve cobrir as perdas esperadas com MED de 1 mês.
 
 Situação: o ledger e a verificação do invariante existem no software; a conta segregada e a rotina automática de reconciliação diária com o extrato da Trio ainda não existem e são pré-requisito para dinheiro real (Anexo A).
 
 ### 6.6. Risco legal e regulatório
 
-- a) Enquadramento do poker online: a empresa trata o poker como jogo de habilidade, mas só operará com dinheiro real após parecer jurídico favorável, alteração do objeto social (hoje CNAE 8599-6/99 e 6391-7/00) e aprovação da Trio.
+- a) Enquadramento do poker online: a empresa trata o poker como jogo de habilidade, mas só operará com dinheiro real após parecer jurídico favorável, alteração do objeto social (hoje CNAE 8599-6/99 e 6391-7/00, que não incluem o poker) e aprovação da Trio.
 - b) Obrigações de PLD/FTP, LGPD (Lei 13.709/2018), proteção de menores (ECA, Lei 8.069/1990), defesa do consumidor (Lei 8.078/1990) e anticorrupção (Lei 12.846/2013).
 - c) Exigências contratuais da Trio, que está sujeita à Circular BCB 3.978/2020, adotada pela empresa como referência voluntária de boas práticas.
 
@@ -119,7 +119,7 @@ A empresa depende da audiência de @mikhaeu_. Pontos concretos: reclamação pú
 
 ### 6.8. Risco de terceiros e fornecedores
 
-Fornecedores críticos: Trio (conta de pagamento e Pix), Supabase (banco de dados e autenticação), Vercel (hospedagem da aplicação), GitHub (código-fonte), plataforma de infoprodutos (vendas de cursos), Meta (Instagram e WhatsApp, canais de atendimento). A contratar antes de dinheiro real: fornecedor de KYC (bureau de validação de CPF).
+Fornecedores críticos: Trio (conta de pagamento e Pix), Supabase (banco de dados e autenticação), Vercel (hospedagem da aplicação), GitHub (código-fonte), Meta (Instagram e WhatsApp, canais de atendimento). A contratar antes de dinheiro real: fornecedor de KYC (bureau de validação de CPF).
 
 Controles: due diligence antes da contratação (situação cadastral, documentação de segurança publicada, local de tratamento de dados, cláusulas de proteção de dados); lista de fornecedores com dono e plano de saída mantida pelo Diretor; revisão anual.
 
@@ -149,8 +149,7 @@ Invasão, vazamento de dados ou de chaves, manipulação de saldo ou de cartas, 
 | R12 — Comissão de afiliado paga indevidamente, ou afiliado com divulgação enganosa ou para menores | Fraude / reputacional | 3 × 3 = 9 Médio | Raphael |
 | R13 — Indisponibilidade de Supabase ou Vercel com mãos em andamento | Operacional / terceiros | 3 × 3 = 9 Médio | Michael |
 | R14 — Ausência ou incapacidade de um dos sócios | Operacional | 2 × 4 = 8 Médio | Raphael |
-| R15 — Chargeback e reembolso em vendas de cursos acima do normal | Fraude / reputacional | 2 × 2 = 4 Baixo | Michael |
-| R16 — Uso do cartão corporativo fora da finalidade (mídia paga) | Operacional | 1 × 2 = 2 Baixo | Raphael |
+| R15 — Uso do cartão corporativo fora da finalidade (mídia paga) | Operacional | 1 × 2 = 2 Baixo | Raphael |
 
 **Tabela 7.1-B — Controles**
 
@@ -167,11 +166,10 @@ Invasão, vazamento de dados ou de chaves, manipulação de saldo ou de cartas, 
 | R09 — Jogo com vantagem interna | Proibição de sócios e pessoas com acesso administrativo jogarem em mesas com dinheiro real (BO-GOV-01); estado da mesa inacessível a clientes | Regra vigente; RLS implementado |
 | R10 — Dinheiro real sem enquadramento | Proibição expressa (5.1 c); checklist do Anexo A aprovado em ata | Vigente |
 | R11 — Perda da conta Trio | KRIs de MED com limite abaixo do tolerado pela Trio; comunicação proativa à Trio; plano de continuidade (seção 9) | Vigente; limite da Trio a confirmar com a Trio |
-| R12 — Comissão de afiliado | Cálculo por registro de sistema; lote aprovado pelo Administrador; contrato com regras de divulgação | Vigente para vendas de cursos |
+| R12 — Comissão de afiliado | Cálculo por registro de sistema; lote aprovado pelo Administrador; contrato com regras de divulgação | Regra vigente; aplicada a partir do primeiro pagamento de comissão do poker |
 | R13 — Indisponibilidade de provedor | Liquidação idempotente por mão; recuperação de mão encerrada e não liquidada; saldos preservados no banco | Implementado |
 | R14 — Pessoa-chave | Procedimentos escritos; acesso de emergência às contas críticas para o outro sócio (9.4) | A formalizar em até 30 dias desta versão |
-| R15 — Chargeback e reembolso de cursos | Política de reembolso (BO-POL-06); acompanhamento mensal | Vigente |
-| R16 — Cartão corporativo | Orçamento mensal aprovado pelo Administrador; conferência mensal da fatura contra as plataformas de anúncio | Vigente |
+| R15 — Cartão corporativo | Orçamento mensal aprovado pelo Administrador; conferência mensal da fatura contra as plataformas de anúncio | Vigente |
 
 7.2. R01 e R04 estão em nível Alto. Plano de tratamento: os controles indicados são pré-requisito para dinheiro real (Anexo A); enquanto não existirem, não há depósito de jogadores e o risco não se materializa.
 
@@ -183,8 +181,6 @@ Invasão, vazamento de dados ou de chaves, manipulação de saldo ou de cartas, 
 |---|---|---|---|---|---|
 | Taxa de MED (quantidade) | notificações de MED ÷ Pix recebidos, no mês | Semanal e mensal | ≥ 0,10% | ≥ 0,30% | Suspender cadastro de novos jogadores e reduzir limites de depósito até tratar a causa |
 | Taxa de MED (valor) | valor bloqueado ou devolvido por MED ÷ valor recebido por Pix, no mês | Mensal | ≥ 0,20% | ≥ 0,50% | Idem, e comunicar a Trio |
-| Chargeback em vendas de cursos | contestações ÷ vendas com cartão, no mês (relatório da plataforma) | Mensal | ≥ 0,50% | ≥ 1,00% | Revisar oferta, página de venda e público dos anúncios |
-| Reembolsos de cursos | reembolsos ÷ vendas, no mês | Mensal | ≥ 7% | ≥ 12% | Revisar produto e comunicação comercial |
 | Alertas de PLD em atraso | alertas sem conclusão além do prazo da sua severidade (BO-POL-01, item 10.1) | Diária | ≥ 1 | qualquer alerta aberto há mais de 30 dias, ou alerta crítico não tratado de imediato (teto absoluto do BO-POL-01: 45 dias) | Escalar ao Comitê; congelar movimentação do cliente até a conclusão |
 | Divergência de reconciliação | saldo de jogadores (ledger + fichas em mesa) − saldo da conta segregada | Diária | qualquer diferença ≠ R$ 0,00 em D+1 | diferença não explicada após 3 dias úteis, ou cobertura < 100% | Suspender saques e transferência de rake; incidente crítico; aporte de capital próprio se faltar cobertura |
 | Invariante do ledger | Σ saldos + Σ fichas em mesa − Σ créditos emitidos; e nº de saldos negativos | A cada release e diária | — | qualquer valor ≠ 0 | Suspender mesas; incidente crítico |
@@ -199,7 +195,7 @@ Invasão, vazamento de dados ou de chaves, manipulação de saldo ou de cartas, 
 
 ## 9. Plano de continuidade de negócios
 
-9.1. Funções críticas: (a) guarda e integridade do saldo de jogadores; (b) atendimento e devoluções; (c) cumprimento das obrigações de PLD/FTP e de sanções; (d) recebimento das vendas de cursos.
+9.1. Funções críticas: (a) guarda e integridade do saldo de jogadores; (b) atendimento e devoluções; (c) cumprimento das obrigações de PLD/FTP e de sanções.
 
 9.2. Cenários e respostas:
 

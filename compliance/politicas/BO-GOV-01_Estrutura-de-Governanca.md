@@ -26,14 +26,14 @@
 
 ## 4. Estrutura e organograma
 
-4.1. Sociedade empresária limitada, microempresa, dois sócios com 50% do capital cada. Operação 100% digital, sem empregados nesta data.
+4.1. Sociedade empresária limitada, microempresa, dois sócios com 50% do capital cada. Operação 100% digital, sem empregados nesta data. A empresa atua em educação digital (cursos livres e conteúdo), com faturamento de cerca de R$ 1 milhão, e está em transição para concentrar o crescimento na plataforma própria de poker online, hoje em fase pré-operacional, com a conta de pagamento na Trio dedicada exclusivamente a essa atividade; a venda de cursos tem processamento próprio, fora da Trio. A equipe tem experiência anterior com operação digital de alto volume transacional.
 
 4.2. Organograma:
 
 - **Reunião de Sócios** — Michael Mendonça Barros Silva (50%) e Raphael Mendonça Barros Silva (50%)
   - **Administrador** — Raphael: administração e representação da sociedade, aprovação de políticas, finanças e contratos
     - **Diretor de Compliance e PLD/FTP e Encarregado de Dados** — Michael: programa de compliance, PLD/FTP, riscos, segurança da informação e privacidade; reporta ao Comitê de Compliance e, em matéria de comunicação ao COAF, decide com autonomia
-    - **Operação, produto, conteúdo e tecnologia** — Michael: cursos, conteúdo do Instagram, atendimento, desenvolvimento da plataforma POKER (conflito registrado no item 7.3)
+    - **Operação, produto, conteúdo e tecnologia** — Michael: conteúdo do Instagram, atendimento, desenvolvimento da plataforma POKER (conflito registrado no item 7.3)
   - **Comitê de Compliance** — Raphael e Michael: supervisão do programa
 
 ## 5. Papéis e responsabilidades
@@ -80,8 +80,6 @@ O quórum é a presença dos dois membros. Em caso de divergência, decide o Adm
 | Saque de jogador acima de R$ 20.000 no dia | Sistema | Diretor e Administrador | Registro de análise |
 | Lançamento manual no ledger (`adjust`) | Diretor, com justificativa | Administrador | Ledger (meta com justificativa) e ata |
 | Transferência de rake da conta segregada para a operacional | Diretor (após reconciliação) | Administrador | Relatório de reconciliação |
-| Reembolso de curso no prazo legal de arrependimento | Atendimento | Automático, conforme BO-POL-06 | Plataforma de infoprodutos |
-| Reembolso fora do prazo legal ou acima de R$ 2.000 | Atendimento | Administrador | Registro de atendimento |
 | Orçamento mensal de mídia no cartão corporativo | Michael | Administrador | Ata ou e-mail de aprovação |
 | Contratação de fornecedor crítico | Diretor (due diligence) | Administrador | Registro de fornecedores |
 | Concessão de acesso administrativo | Diretor | Administrador | Registro de acessos |
@@ -109,7 +107,7 @@ O quórum é a presença dos dois membros. Em caso de divergência, decide o Adm
 
 ## 8. Canal de denúncia
 
-8.1. Denúncias de violação de lei, destas políticas ou do código de conduta, por qualquer pessoa (cliente, afiliado, fornecedor ou terceiro), podem ser enviadas pelo canal oficial do site institucional (https://bo-2iobkcvnv5nr.vercel.app/contato, assunto "Denúncia"), que aceita relato anônimo e gera número de protocolo, ou ao e-mail michael@mikhaeu.com com o assunto "DENÚNCIA".
+8.1. Denúncias de violação de lei, destas políticas ou do código de conduta, por qualquer pessoa (cliente, afiliado, fornecedor ou terceiro), podem ser enviadas pelo canal oficial do site institucional (https://blackopsltda.com/contato, assunto "Denúncia"), que aceita relato anônimo e gera número de protocolo, ou ao e-mail michael@mikhaeu.com com o assunto "DENÚNCIA".
 
 8.2. Denúncia que envolva o Diretor de Compliance é enviada diretamente ao Administrador, Raphael, pelo e-mail pessoal dele, o mesmo informado como contato do Representante Legal no cadastro da conta de pagamento.
 
