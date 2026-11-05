@@ -44,7 +44,8 @@ lines = [
     ("Abas", BOLD),
     ("• Premissas — tudo que você pode mudar (azul, fundo amarelo): metas, prazos, mesas, horas, regra de banca, estrutura de torneio, custo do lead.", BLK),
     ("• Mesas — tabela das mesas de cash: banca mínima pela regra, buy-in e rake medido na Brasa (SPY-brasa, 04–05/11/2026).", BLK),
-    ("• Cash — os cenários de cash game: 5 bancas × 5 prazos × 2 metas.", BLK),
+    ("• Cash — os cenários de cash game pela regra de banca: 5 bancas × 5 prazos × 2 metas.", BLK),
+    ("• Ficha alta — cada pacote sentado em cada mesa (R$ 0,10 a R$ 5): quantas entradas a banca cobre e quanto a meta pede por 100 mãos.", BLK),
     ("• Torneio — o mesmo cenário pelo caminho do torneio: buy-in, prêmio do 1º, quantos 1º ou top-3 a meta exige.", BLK),
     ("• Rotina — o plano diário estilo academia/Duolingo por trilha (3, 7, 15, 30, 60 dias): mesas, horas, mãos, estudo, stop-loss, ofensiva.", BLK),
     ("• Casa — o que a operação ganha quando X% dos leads executam a trilha: rake gerado, impostos, cashback, custo do lead e o % de execução de empate.", BLK),
@@ -68,11 +69,11 @@ rows = [
     ("Volume (cash)", None, None, None),
     ("Mesas simultâneas", 4, INT, "Mesas abertas ao mesmo tempo."),
     ("Horas por dia", 3, DEC, "Horas de jogo por dia."),
-    ("Mãos por hora por mesa (6-max online)", 75, INT, "Referência de mercado para 6-max online: 60–90 mãos/h por mesa."),
+    ("Mãos por hora por mesa", 42, INT, "Medido na Brasa: 42 mãos por jogador-hora (SPY-brasa, 04–05/11/2026). Sites de desktop: 60–90."),
     ("Regra de banca: buy-ins de 100bb para jogar a mesa", 40, INT, "Padrão conservador: 30–50. Agressivo: 20."),
     ("Ganho de referência para calcular volume (bb/100, líquido)", 5, DEC, "Só usado nas colunas 'se ganhar X'. Mude para ver quantas horas a meta pediria."),
     ("Rake", None, None, None),
-    ("Jogadores por mão (para dividir o rake da mesa por jogador)", 6, INT, "6 = mesa cheia de 6-max. Mesa com menos gente aumenta o rake por jogador."),
+    ("Prazo da aba Ficha alta (dias)", 30, INT, "A aba Ficha alta mostra todas as mesas para este prazo."),
     ("Torneio", None, None, None),
     ("Balas: em quantos torneios a banca é dividida", 15, INT, "Banca ÷ balas = buy-in escolhido."),
     ("Inscritos por torneio", 300, INT, "Tamanho do campo."),
@@ -117,25 +118,25 @@ for i, v in enumerate([3, 7, 15, 30, 60]):
 # ---------------------------------------------------------------- Mesas
 m = wb.create_sheet("Mesas")
 put(m, "A1", "Mesas de cash — banca mínima pela regra e rake medido na Brasa", H1)
-hdr(m, 3, ["Big blind (R$)", "Buy-in 100bb (R$)", "Banca mínima pela regra (R$)", "Rake da mesa medido (R$)", "Mãos medidas", "Rake por mão (R$)", "Rake por jogador a cada 100 mãos (bb)", "Origem do rake"],
-    [14, 14, 18, 16, 13, 14, 20, 50])
-mesas = [(0.02, None, None, "Sem medição: usa o mesmo rake em bb da mesa de R$ 0,10"), (0.05, None, None, "Sem medição: usa o mesmo rake em bb da mesa de R$ 0,10"),
-         (0.10, 771, 2799, "SPY-brasa 04–05/11/2026"), (0.25, 1942, 2205, "SPY-brasa"), (0.50, 3423, 2170, "SPY-brasa"),
-         (1.00, 6765, 2812, "SPY-brasa"), (2.00, 14059, 3632, "SPY-brasa")]
-for i, (bb, rk, hands, src) in enumerate(mesas):
+hdr(m, 3, ["Big blind (R$)", "Buy-in 100bb (R$)", "Banca mínima pela regra (R$)", "Rake da mesa medido (R$)", "Mãos medidas", "Rake por mão (R$)", "Rake por jogador a cada 100 mãos (bb)", "Origem do rake", "Jogadores por mão (medido)", "Buy-in mínimo da mesa (40bb, R$)"],
+    [14, 14, 18, 16, 13, 14, 20, 34, 14, 16])
+mesas = [(0.02, None, None, "Sem medição: usa o rake em bb da mesa de R$ 0,10", 4.7), (0.05, None, None, "Sem medição: usa o rake em bb da mesa de R$ 0,10", 4.7),
+         (0.10, 2329.31, 8068, "SPY-brasa 04–05/11/2026 (cash)", 4.74), (0.25, 5124.87, 5687, "SPY-brasa", 6.25), (0.50, 10060.47, 6153, "SPY-brasa", 6.21),
+         (1.00, 16533.11, 6032, "SPY-brasa", 6.17), (2.00, 33609.62, 9610, "SPY-brasa", 5.07), (5.00, 8877.41, 1057, "SPY-brasa", 6.15)]
+for i, (bb, rk, hands, src, npl) in enumerate(mesas):
     rr = 4 + i
     put(m, f"A{rr}", bb, BLUE, BRL2, YEL); put(m, f"B{rr}", f"=A{rr}*100", fmt=BRL2)
     put(m, f"C{rr}", f"=B{rr}*{PR('Regra de banca')}", fmt=BRL)
     if rk:
         put(m, f"D{rr}", rk, BLUE, BRL, YEL); put(m, f"E{rr}", hands, BLUE, INT, YEL)
         put(m, f"F{rr}", f"=IF(E{rr}=0,0,D{rr}/E{rr})", fmt=BRL2)
-        put(m, f"G{rr}", f"=IF(A{rr}=0,0,F{rr}/A{rr}/{PR('Jogadores por mão')}*100)", fmt=DEC)
+        put(m, f"G{rr}", f"=IF(A{rr}*I{rr}=0,0,F{rr}/A{rr}/I{rr}*100)", fmt=DEC)
     else:
         put(m, f"G{rr}", "=$G$6", fmt=DEC)
-    put(m, f"H{rr}", src, Font(name=F, color="666666"))
-put(m, "A12", "O rake da Brasa é 5% de todo pote que passa das blinds, sem teto. Por jogador, ele custa dezenas de bb a cada 100 mãos — é o 'pedágio' que o ganho antes do rake precisa cobrir. Se o contador do observador perdeu mãos, o rake real por mão é menor: edite as colunas D/E.", Font(name=F, italic=True, color="666666"))
-m.merge_cells("A12:H13"); m["A12"].alignment = Alignment(wrap_text=True, vertical="top")
-MESA_BB = "Mesas!$A$4:$A$10"; MESA_MIN = "Mesas!$C$4:$C$10"; MESA_RK = "Mesas!$G$4:$G$10"
+    put(m, f"H{rr}", src, Font(name=F, color="666666")); put(m, f"I{rr}", npl, BLUE, DEC, YEL); put(m, f"J{rr}", f"=A{rr}*40", fmt=BRL2)
+put(m, "A13", "O rake da Brasa é 5% de todo pote que passa das blinds, sem teto. Por jogador, ele custa dezenas de bb a cada 100 mãos — é o 'pedágio' que o ganho antes do rake precisa cobrir. Se o contador do observador perdeu mãos, o rake real por mão é menor: edite as colunas D/E.", Font(name=F, italic=True, color="666666"))
+m.merge_cells("A13:J14"); m["A13"].alignment = Alignment(wrap_text=True, vertical="top")
+MESA_BB = "Mesas!$A$4:$A$11"; MESA_MIN = "Mesas!$C$4:$C$11"; MESA_RK = "Mesas!$G$4:$G$11"
 
 # ---------------------------------------------------------------- Cash
 c_ = wb.create_sheet("Cash")
@@ -174,6 +175,36 @@ for meta in ("A", "B"):
 c_.freeze_panes = "D5"
 CASH_LAST = row - 1
 put(c_, f"A{row+1}", "Referência para ler a coluna L: no mercado, um jogador vencedor sólido de cash online costuma registrar algo entre 2 e 10 bb/100 líquidos. Acima de ~20 bb/100 sustentados por milhares de mãos é raríssimo.", Font(name=F, italic=True, color="666666"))
+
+# ---------------------------------------------------------------- Ficha alta
+fa = wb.create_sheet("Ficha alta")
+put(fa, "A1", "Cash ficha alta — cada pacote em cada mesa (ignora a regra de banca)", H1)
+put(fa, "A2", "Com ficha maior, a meta pede menos bb/100 — e a banca cobre menos entradas. Prazo em Premissas ('Prazo da aba Ficha alta').", Font(name=F, color="666666"))
+fh = ["Banca inicial (R$)", "Mesa (bb R$)", "Buy-in mínimo (40bb, R$)", "Pode sentar?", "Entradas mínimas que a banca cobre", "Buy-in cheio 100bb (R$)",
+      "Entradas cheias que a banca cobre", "Prazo (dias)", "Lucro necessário p/ R$ 2.000 (R$)", "Lucro necessário em buy-ins de 100bb", "Mãos no prazo",
+      "GANHO NECESSÁRIO (bb/100, líquido)", "Rake pago na mesa (bb/100)", "GANHO ANTES DO RAKE (bb/100)", "Se ganhar a referência: horas/dia", "Rake pago no prazo (R$)"]
+hdr(fa, 4, fh, [12, 10, 12, 9, 12, 12, 12, 8, 14, 13, 11, 15, 12, 15, 14, 14])
+row = 5
+for bref in BANC:
+    for k in range(2, 8):  # mesas 0,10 a 5,00
+        R = row; mr = 4 + k
+        put(fa, f"A{R}", f"={bref}", GRN, BRL); put(fa, f"B{R}", f"=Mesas!$A${mr}", GRN, BRL2)
+        put(fa, f"C{R}", f"=Mesas!$J${mr}", GRN, BRL2)
+        put(fa, f"D{R}", f'=IF(A{R}>=C{R},"SIM","NÃO")', BOLD)
+        put(fa, f"E{R}", f"=IF(C{R}=0,0,A{R}/C{R})", fmt=DEC)
+        put(fa, f"F{R}", f"=B{R}*100", fmt=BRL2); put(fa, f"G{R}", f"=IF(F{R}=0,0,A{R}/F{R})", fmt=DEC)
+        put(fa, f"H{R}", f"={PR('Prazo da aba')}", GRN, INT)
+        put(fa, f"I{R}", f"=MAX(0,{PR('Meta A')}-A{R})", fmt=BRL)
+        put(fa, f"J{R}", f"=IF(F{R}=0,0,I{R}/F{R})", fmt=DEC)
+        put(fa, f"K{R}", f"={PR('Mesas simultâneas')}*{PR('Horas por dia')}*{PR('Mãos por hora')}*H{R}", fmt=INT)
+        put(fa, f"L{R}", f"=IF(K{R}*B{R}=0,0,I{R}/(K{R}/100*B{R}))", BOLD, DEC)
+        put(fa, f"M{R}", f"=Mesas!$G${mr}", GRN, DEC); put(fa, f"N{R}", f"=L{R}+M{R}", BOLD, DEC)
+        put(fa, f"O{R}", f"=IF({PR('Ganho de referência')}*B{R}*H{R}*{PR('Mesas simultâneas')}*{PR('Mãos por hora')}=0,0,I{R}/({PR('Ganho de referência')}*B{R})*100/H{R}/({PR('Mesas simultâneas')}*{PR('Mãos por hora')}))", fmt=DEC)
+        put(fa, f"P{R}", f"=K{R}/100*M{R}*B{R}", fmt=BRL)
+        for col in range(1, 17): fa.cell(R, col).border = BOX
+        row += 1
+    row += 1
+fa.freeze_panes = "C5"
 
 # ---------------------------------------------------------------- Torneio
 t = wb.create_sheet("Torneio")
