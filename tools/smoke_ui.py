@@ -51,7 +51,7 @@ def login_ctx(browser, sess, mobile=False):
 
 def main():
     errs = []
-    a = session("poker-ui-1@example.com"); b = session("poker-ui-2@example.com")
+    run = time.strftime("%m%d%H%M%S"); a = session(f"poker-ui-{run}-a@example.com"); b = session(f"poker-ui-{run}-b@example.com")
     for s in (a, b): api("/api/me/credit", s["access_token"], {})
     t = api("/api/tables", a["access_token"], {"name": "Smoke UI", "sb": 50, "bb": 100, "maxSeats": 6, "rakeBps": 500, "rakeCap": None, "minBuyin": 4000, "maxBuyin": 20000})
     tid = (t.get("table") or {}).get("id") or t.get("id")
