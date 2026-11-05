@@ -1,5 +1,6 @@
 // JSON helpers for the API: { ok:true, ... } or { ok:false, error:'CODE', message } (SPEC §3).
 import { NextResponse, type NextRequest } from 'next/server';
+import { unstable_rethrow } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { userFromRequest } from './supabase';
 
@@ -28,6 +29,7 @@ export async function handle(fn: () => Promise<NextResponse>): Promise<NextRespo
   try {
     return await fn();
   } catch (e) {
+    unstable_rethrow(e); // Next internals (prerender bail-out, dynamic usage) must propagate
     if (e instanceof ApiError) return fail(e.status, e.code, e.message);
     console.error('[api] internal error', e);
     return fail(500, 'INTERNAL', 'internal error');

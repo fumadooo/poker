@@ -43,6 +43,8 @@ export function TableClient({ id }: { id: string }) {
   const dataRef = useRef<TableStateResponse | null>(null);
   const inflight = useRef<Promise<TableStateResponse | null> | null>(null);
   const tickBusy = useRef(false);
+  const skewRef = useRef(0); // serverNow - Date.now()
+  const [skew, setSkew] = useState(0);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -55,6 +57,10 @@ export function TableClient({ id }: { id: string }) {
     const p = api
       .getState(id)
       .then((r) => {
+        if (typeof r.serverNow === 'number') {
+          skewRef.current = r.serverNow - Date.now();
+          setSkew(Math.round(skewRef.current / 250) * 250);
+        }
         dataRef.current = r;
         setData(r);
         setError(null);
@@ -93,17 +99,20 @@ export function TableClient({ id }: { id: string }) {
   }, [id, refetch]);
 
   // Polling: 1 s enquanto há deadline (tick quando vencido); 3 s entre mãos para o tick iniciar a próxima.
-  const deadlineAt = data?.state?.deadlineAt ?? null;
+  const rawDeadline = data?.state?.deadlineAt ?? null;
+  // deadline convertido para o relógio local (o timer e o tick usam Date.now() do cliente)
+  const deadlineAt = rawDeadline == null ? null : rawDeadline - skew;
   const betweenHands = !!data && (data.state == null || data.state.street === 'ended');
   const seatedCount = data?.seats.filter((s) => s.status === 'sitting').length ?? 0;
+  const hasData = !!data;
   useEffect(() => {
-    if (!data) return;
+    if (!hasData) return;
     const needTickLoop = betweenHands && seatedCount >= 2;
     if (deadlineAt == null && !needTickLoop) return;
     const run = async () => {
       const cur = dataRef.current;
       const dl = cur?.state?.deadlineAt ?? null;
-      const past = dl != null && dl <= Date.now();
+      const past = dl != null && dl - skewRef.current <= Date.now();
       if ((past || needTickLoop) && !tickBusy.current) {
         tickBusy.current = true;
         try { await api.tick(id); } catch { /* idempotente; ignora */ } finally { tickBusy.current = false; }
@@ -112,7 +121,7 @@ export function TableClient({ id }: { id: string }) {
     };
     const iv = setInterval(run, deadlineAt != null ? 1000 : 3000);
     return () => clearInterval(iv);
-  }, [data, deadlineAt, betweenHands, seatedCount, id, refetch]);
+  }, [hasData, deadlineAt, betweenHands, seatedCount, id, refetch]);
 
   const mySeat = data?.me?.seat ?? null;
   const state = data?.state ?? null;
@@ -198,7 +207,8 @@ export function TableClient({ id }: { id: string }) {
     }
   };
 
-  const potTotal = (state?.pots ?? []).reduce((a, p) => a + p.amount, 0) + (state?.players ?? []).reduce((a, p) => a + p.committed, 0);
+  // o motor recalcula state.pots a cada ação a partir de totalCommitted: já inclui as apostas da rua corrente
+  const potTotal = (state?.pots ?? []).reduce((a, p) => a + p.amount, 0);
   const showResult = !!state && state.street === 'ended' && !!state.result && dismissedHand !== state.handId;
 
   if (error && !data) {
@@ -258,7 +268,7 @@ export function TableClient({ id }: { id: string }) {
         {/* mesa + ações */}
         <div className={`flex min-w-0 flex-1 flex-col gap-3 ${mobileTab === 'historico' ? 'hidden md:flex' : ''}`}>
           <div className="relative">
-            <PokerTable table={table} seats={seats} state={state} mySeat={mySeat} canSit={mySeat == null && !busy} onSit={(seat) => { setSitError(null); setSitSeat(seat); }} />
+            <PokerTable deadlineAt={deadlineAt} myHole={data.me?.hole ?? []} table={table} seats={seats} state={state} mySeat={mySeat} canSit={mySeat == null && !busy} onSit={(seat) => { setSitError(null); setSitSeat(seat); }} />
             {showResult && state?.result && (
               <ShowdownOverlay result={state.result} board={state.board} nick={nickOf} onClose={() => setDismissedHand(state.handId)} />
             )}

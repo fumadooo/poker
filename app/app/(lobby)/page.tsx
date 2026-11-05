@@ -127,7 +127,7 @@ export default function LobbyPage() {
                         Buy-in {fmtCentsShort(t.min_buyin_cents)} – {fmtCentsShort(t.max_buyin_cents)}
                       </span>
                     </span>
-                    <span className="w-28 text-right font-mono text-sm text-gold sm:w-36">{blindsLabel(t.sb_cents, t.bb_cents)}</span>
+                    <span className="w-28 whitespace-nowrap text-right font-mono text-xs text-gold sm:w-36 sm:text-sm">{blindsLabel(t.sb_cents, t.bb_cents)}</span>
                     <span className={`w-16 text-right text-sm sm:w-20 ${full ? 'text-red-300' : seated > 0 ? 'text-green-300' : 'text-white/60'}`}>
                       {seated}/{t.max_seats}
                     </span>

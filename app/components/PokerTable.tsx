@@ -12,6 +12,8 @@ export interface PokerTableProps {
   mySeat: number | null;
   canSit: boolean;
   onSit: (seat: number) => void;
+  deadlineAt?: number | null; // deadline já no relógio local (corrigido pelo serverNow)
+  myHole?: string[]; // me.hole da API: fallback se state.players não trouxer as minhas cartas
 }
 
 const STREET_LABEL: Record<string, string> = { preflop: 'Pré-flop', flop: 'Flop', turn: 'Turn', river: 'River', showdown: 'Showdown', ended: 'Fim da mão' };
@@ -22,7 +24,7 @@ function seatPos(k: number, n: number, rx: number, ry: number) {
   return { x: 50 + rx * Math.cos(ang), y: 50 + ry * Math.sin(ang) };
 }
 
-export function PokerTable({ table, seats, state, mySeat, canSit, onSit }: PokerTableProps) {
+export function PokerTable({ table, seats, state, mySeat, canSit, onSit, deadlineAt, myHole = [] }: PokerTableProps) {
   const n = table.max_seats;
   const anchor = mySeat ?? 0; // meu assento fica embaixo
   const handInProgress = !!state && state.street !== 'ended';
@@ -30,11 +32,11 @@ export function PokerTable({ table, seats, state, mySeat, canSit, onSit }: Poker
   const players = new Map((state?.players ?? []).map((p) => [p.seat, p]));
   const shown = new Map((state?.result?.shown ?? []).map((s) => [s.seat, s.hole]));
   const winners = new Set((state?.result?.winners ?? []).map((w) => w.seat));
+  // state.pots já inclui as apostas da rua corrente (motor recalcula por totalCommitted)
   const potTotal = (state?.pots ?? []).reduce((a, p) => a + p.amount, 0);
-  const committedTotal = (state?.players ?? []).reduce((a, p) => a + p.committed, 0);
 
   return (
-    <div className="relative mx-auto w-full max-w-[900px] aspect-[3/4] sm:aspect-[16/10] select-none">
+    <div className="relative mx-auto mt-8 mb-16 w-full max-w-[900px] aspect-[3/4] sm:mt-6 sm:aspect-[16/10] select-none">
       {/* oval */}
       <div className="felt absolute inset-[12%] rounded-[50%]" />
 
@@ -45,6 +47,9 @@ export function PokerTable({ table, seats, state, mySeat, canSit, onSit }: Poker
             <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">
               {STREET_LABEL[state.street] ?? state.street} · Mão #{state.handNo}
             </div>
+            {state.street === 'ended' && (
+              <div className="rounded-full bg-black/50 px-3 py-0.5 text-[11px] text-white/80">Mão liquidada · próxima em instantes</div>
+            )}
             <div className="flex gap-1.5">
               {[0, 1, 2, 3, 4].map((i) => (
                 <PlayingCard key={i} card={state.board[i]} faceDown={false} size="md" className={state.board[i] ? '' : 'invisible'} />
@@ -57,7 +62,7 @@ export function PokerTable({ table, seats, state, mySeat, canSit, onSit }: Poker
                       {i === 0 ? 'Pote' : `Side ${i}`}: {fmtCentsShort(p.amount)}
                     </span>
                   ))
-                : <span className="chip">Pote: {fmtCentsShort(potTotal + committedTotal)}</span>}
+                : <span className="chip">Pote: {fmtCentsShort(potTotal)}</span>}
             </div>
           </>
         ) : (
@@ -73,7 +78,8 @@ export function PokerTable({ table, seats, state, mySeat, canSit, onSit }: Poker
         const pos = seatPos(k, n, 44, 44);
         const betPos = seatPos(k, n, 26, 24);
         const row = seatRows.get(seat) ?? null;
-        const player = players.get(seat) ?? null;
+        const p0 = players.get(seat) ?? null;
+        const player = p0 && mySeat === seat && p0.hole.length === 0 && myHole.length > 0 && !p0.folded ? { ...p0, hole: myHole } : p0;
         return (
           <div key={seat}>
             <Seat
@@ -85,7 +91,7 @@ export function PokerTable({ table, seats, state, mySeat, canSit, onSit }: Poker
               isSB={!!state && state.sbSeat === seat}
               isBB={!!state && state.bbSeat === seat}
               toAct={!!state && state.toAct === seat && handInProgress}
-              deadlineAt={state?.deadlineAt ?? null}
+              deadlineAt={deadlineAt !== undefined ? deadlineAt : state?.deadlineAt ?? null}
               actionSeconds={state?.config.actionSeconds ?? 20}
               shownHole={shown.get(seat)}
               isWinner={winners.has(seat)}

@@ -183,6 +183,13 @@ def main():
     st, sb_ = B.call("GET", f"/api/table/{tid}/state", quiet=True)
     other = [p for p in sb_["state"]["players"] if p["playerId"] == ids[0]][0]
     check(other["hole"] == [], "B does not see A's hole cards")
+    st, an = A.call("GET", f"/api/table/{tid}/state", auth=False, quiet=True)
+    check(st == 200 and an["state"] is not None, "anon GET state -> 200 (spectator)")
+    check(all(p["hole"] == [] for p in an["state"]["players"]) and an["me"]["seat"] is None and an["me"]["hole"] == [] and an["legal"] is None,
+          "anon sees no hole cards at all, me.seat null, legal null")
+    check(an["state"]["deck"] == [] and an["state"]["seed"] == "", "anon: no deck, no seed")
+    st, res = A.call("POST", f"/api/table/{tid}/tick", auth=False)
+    check(st == 401, "anon tick -> 401")
     print(f"  hand {s['handId']} no={s['handNo']} button={s['button']} sb={s['sbSeat']} bb={s['bbSeat']} toAct={s['toAct']} version={sa['version']}")
 
     print("== 7. error paths")

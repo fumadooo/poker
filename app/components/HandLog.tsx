@@ -29,10 +29,17 @@ export function describeEvent(e: HandEvent, nick: (seat: number | undefined) => 
       }
     case 'street': return `${STREET[e.street ?? ''] ?? e.street}: ${cardsText(e.cards)}`;
     case 'showdown': {
+      // motor: um evento por assento { seat, cards, data: { hand } }
+      if (e.seat != null) {
+        const d = e.data as { hand?: string } | undefined;
+        return `${who} mostra ${cardsText(e.cards)}${d?.hand ? ` (${d.hand})` : ''}`;
+      }
       const list = Array.isArray(e.data) ? (e.data as { seat: number; hole?: string[]; hand?: string }[]) : [];
       return list.length ? 'Showdown — ' + list.map((s) => `${nick(s.seat)}: ${cardsText(s.hole)}${s.hand ? ` (${s.hand})` : ''}`).join('; ') : 'Showdown';
     }
-    case 'payout': return `${who} ganha ${amt}`;
+    case 'payout':
+      // data.uncalled = aposta não paga devolvida (não é prêmio)
+      return (e.data as { uncalled?: boolean } | undefined)?.uncalled ? `${amt} devolvido a ${who} (aposta não paga)` : `${who} ganha ${amt}`;
     case 'rake': return `Rake ${amt}`;
     case 'end': return 'Mão encerrada';
     case 'timeout': return `${who} estourou o tempo`;

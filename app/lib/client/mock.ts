@@ -80,7 +80,7 @@ function makeFlopState(): HandState {
     currentBet: 600,
     minRaise: 600,
     lastAggressor: 1,
-    pots: [{ amount: 1650, eligible: [0, 1, 3, 6] }],
+    pots: [{ amount: 2250, eligible: [0, 1, 3, 6] }], // = Σ totalCommitted, como o motor
     rake: 0,
     deadlineAt: Date.now() + 20_000,
     log,
@@ -103,12 +103,12 @@ function legalFor(state: HandState | null, seat: number | null): LegalActions | 
   const canCheck = toCall === 0;
   return {
     seat,
-    fold: !canCheck,
+    fold: true, // motor: fold é sempre legal
     check: canCheck,
     call: toCall > 0 ? Math.min(toCall, p.stack) : null,
-    bet: canCheck && state.currentBet === 0 ? { min: Math.min(state.config.bb, max), max } : null,
-    raise: state.currentBet > 0 && max > state.currentBet + state.minRaise ? { min: state.currentBet + state.minRaise, max } : null,
-    allin: max,
+    bet: state.currentBet === 0 ? { min: Math.min(state.config.bb, p.stack), max: p.stack } : null, // bet = fichas na rua
+    raise: state.currentBet > 0 && !p.acted && max >= state.currentBet + state.minRaise ? { min: state.currentBet + state.minRaise, max } : null, // raise-TO
+    allin: p.stack, // motor: allin = stack restante
   };
 }
 
@@ -129,7 +129,7 @@ function nextToAct(state: HandState, from: number): number | null {
 
 function finishHand(id: string, state: HandState) {
   const live = state.players.filter((p) => !p.folded);
-  const potTotal = state.pots.reduce((a, p) => a + p.amount, 0) + state.players.reduce((a, p) => a + p.committed, 0);
+  const potTotal = state.players.reduce((a, p) => a + p.totalCommitted, 0);
   const rake = Math.floor((potTotal * state.config.rakeBps) / 10000);
   const winner = live[0] ?? state.players[0];
   const amount = potTotal - rake;
@@ -144,7 +144,7 @@ function finishHand(id: string, state: HandState) {
     stacks: state.players.map((p) => ({ seat: p.seat, stack: p.stack + (p.seat === winner.seat ? amount : 0) })),
   };
   const extra: HandEvent[] = [];
-  if (shown.length) extra.push({ t, kind: 'showdown', data: shown });
+  for (const s of shown) extra.push({ t, kind: 'showdown', seat: s.seat, cards: s.hole, data: { hand: s.hand } });
   extra.push({ t, kind: 'rake', amount: rake }, { t, kind: 'payout', seat: winner.seat, amount }, { t, kind: 'end' });
   states[id].state = {
     ...state,
@@ -214,6 +214,7 @@ function applyMockAction(id: string, seat: number, action: ActionKind, amount?: 
   const newState: HandState = {
     ...st,
     players,
+    pots: [{ amount: players.reduce((a, x) => a + x.totalCommitted, 0), eligible: players.filter((x) => !x.folded).map((x) => x.seat) }],
     currentBet,
     minRaise,
     lastAggressor: action === 'bet' || action === 'raise' ? seat : st.lastAggressor,
@@ -275,6 +276,7 @@ export const mockApi = {
       me: mine ? { seat: mine.seat, hole: myP?.hole ?? [] } : null,
       legal: legalFor(raw, mine?.seat ?? null),
       version: states[id].version,
+      serverNow: Date.now(),
     }, 60);
   },
   async sit(id: string, seat: number, buyin: number): Promise<{ ok: true }> {
@@ -310,7 +312,17 @@ export const mockApi = {
   async tick(id: string): Promise<{ ok: true; changed: boolean }> {
     const st = states[id].state;
     if (!st) return { ok: true, changed: false };
-    if (st.street !== 'ended' && st.deadlineAt != null && st.deadlineAt <= Date.now() && st.toAct != null) {
+    // como a API (A1): a mão encerrada fica visível ~3 s ("liquidada") e o tick seguinte limpa o state
+    if (st.street === 'ended') {
+      const endedAt = st.log[st.log.length - 1]?.t ?? 0;
+      if (Date.now() - endedAt < 3000) return { ok: true, changed: false };
+      const stacks = new Map((st.result?.stacks ?? []).map((x) => [x.seat, x.stack]));
+      seatsByTable[id] = seatsByTable[id].map((r) => (stacks.has(r.seat) ? { ...r, stack_cents: stacks.get(r.seat)! } : r));
+      states[id].state = null;
+      bump(id);
+      return delay({ ok: true, changed: true });
+    }
+    if (st.deadlineAt != null && st.deadlineAt <= Date.now() && st.toAct != null) {
       const legal = legalFor(st, st.toAct);
       const t = Date.now();
       states[id].state = { ...st, log: [...st.log, { t, kind: 'timeout', seat: st.toAct }] };

@@ -20,14 +20,14 @@ Legenda: [ ] a fazer · [~] em andamento · [x] feito com evidência em `run/<fa
 - [x] Evidência: tabelas no projeto, RLS negando anon em `tables.state`, `run/D1_evidence.md` (aplicada 2026-11-05 12:50 UTC)
 
 ## A1 — API (depende de E1 + D1) · dono: `app/app/api/**`, `app/lib/server/**`
-- [ ] `sit`, `leave`, `buyin`, `action`, `tick`, `me`, `state` com lock otimista (`version`) e ledger
-- [ ] Broadcast `public_state` por Supabase Realtime após cada mudança
-- [ ] `tools/smoke_api.py`: 2 usuários jogam 1 mão inteira por HTTP · `run/A1_evidence.md`
+- [x] `sit`, `leave`, `buyin`, `action`, `tick`, `me`, `state` com lock otimista (`version`) e ledger
+- [x] Broadcast `public_state` por Supabase Realtime após cada mudança
+- [x] `tools/smoke_api.py`: 2 usuários jogam 1 mão inteira por HTTP · `run/A1_evidence.md`
 
 ## U1 — UI (depende de A1 contrato) · dono: `app/app/(lobby)/**`, `app/app/table/**`, `app/components/**`
-- [ ] Login e-mail OTP, lobby (mesas, sentados, saldo, "fichas de teste +1000"), criar mesa
-- [ ] Mesa: assentos, cartas próprias, board, pote, ações com slider, timer, histórico da mão
-- [ ] Playwright 2 contextos: screenshots em `run/` · `run/U1_evidence.md`
+- [x] Login e-mail OTP, lobby (mesas, sentados, saldo, "fichas de teste +1000"), criar mesa
+- [x] Mesa: assentos, cartas próprias, board, pote, ações com slider, timer, histórico da mão
+- [x] Playwright 2 contextos: screenshots em `run/` · `run/U1_evidence.md` (MOCK 1280/390, 0 erros; e2e real com 2 usuários fica no smoke S1)
 
 ## S1 — ship (depende de A1 + U1) · dono: `tools/deploy.py`, `tools/smoke.py`, `app/vercel.json`
 - [ ] Projeto Vercel `poker` criado por REST, env vars, deploy, URL de produção

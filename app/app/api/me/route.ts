@@ -1,11 +1,12 @@
 // GET /api/me -> { ok, id, email, nick, balance } (balance in cents = sum of the caller's ledger)
-import type { NextRequest } from 'next/server';
+import { connection, type NextRequest } from 'next/server';
 import { handle, ok, requireUser } from '@/lib/server/http';
 import { admin } from '@/lib/server/supabase';
 import { balanceOf } from '@/lib/server/ledger';
 
 
 export async function GET(req: NextRequest) {
+  await connection(); // cacheComponents: per-request (never prerendered)
   return handle(async () => {
     const user = await requireUser(req);
     const [{ data: profile }, balance] = await Promise.all([

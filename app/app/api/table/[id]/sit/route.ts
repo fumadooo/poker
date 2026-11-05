@@ -54,11 +54,19 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     }
 
     // a hand may start right away (idempotent with tick)
-    const r = await mutate(id, (t, s, now) => {
-      const st = startNextHandIfPossible(t, s, now);
-      return st ? { state: st, handNo: st.handNo, button: st.button } : null;
-    });
-    if (!r.changed) void broadcast(id, r.version);
-    return ok({ seat, stack: buyin, balance: balance - buyin, version: r.version });
+    // (the seat is already bought; a failure here only delays the start to the next tick)
+    let version = table.version;
+    try {
+      const r = await mutate(id, (t, s, now) => {
+        const st = startNextHandIfPossible(t, s, now);
+        return st ? { state: st, handNo: st.handNo, button: st.button } : null;
+      });
+      version = r.version;
+      if (!r.changed) void broadcast(id, r.version);
+    } catch (e) {
+      console.warn('[sit] start hand deferred to tick:', e instanceof Error ? e.message : e);
+      void broadcast(id, version);
+    }
+    return ok({ seat, stack: buyin, balance: balance - buyin, version });
   });
 }

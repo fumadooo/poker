@@ -2,8 +2,8 @@
 // legal: legalActions for the viewer or null, version, serverNow }. Never returns the deck, the seed of a running
 // hand, or another player's hole cards (engine publicView).
 import { connection, type NextRequest } from 'next/server';
-import { ApiError, handle, ok, requireUser, requireUuid } from '@/lib/server/http';
-import { admin } from '@/lib/server/supabase';
+import { ApiError, handle, ok, requireUuid } from '@/lib/server/http';
+import { admin, userFromRequest } from '@/lib/server/supabase';
 import { legalFor, publicTable, publicView, requireTable } from '@/lib/server/table';
 
 
@@ -21,7 +21,9 @@ interface SeatWithNick {
 export async function GET(req: NextRequest, ctx: Ctx) {
   await connection();
   return handle(async () => {
-    const user = await requireUser(req);
+    // public read (spectators/anon allowed): publicView hides every hole card except the viewer's own
+    const user = await userFromRequest(req);
+    const uid = user?.id ?? null;
     const id = requireUuid((await ctx.params).id);
     const { table } = await requireTable(id);
     const { data: seatRows, error } = await admin()
@@ -36,10 +38,10 @@ export async function GET(req: NextRequest, ctx: Ctx) {
       const p = Array.isArray(s.profiles) ? s.profiles[0] : s.profiles;
       return { seat: s.seat, user_id: s.user_id, nick: p?.nick ?? null, stack_cents: s.stack_cents, status: s.status, pending_leave: s.pending_leave };
     });
-    const mine = seats.find((s) => s.user_id === user.id) ?? null;
+    const mine = (uid ? seats.find((s) => s.user_id === uid) : undefined) ?? null;
     const st = table.state;
-    const view = st ? publicView(st, user.id) : null;
-    const myPlayer = st && mine ? st.players.find((p) => p.seat === mine.seat && p.playerId === user.id) : undefined;
+    const view = st ? publicView(st, uid) : null;
+    const myPlayer = st && mine ? st.players.find((p) => p.seat === mine.seat && p.playerId === uid) : undefined;
     const me = { seat: mine ? mine.seat : null, hole: myPlayer ? myPlayer.hole.slice() : [] };
     const legal = mine ? legalFor(st, mine.seat) : null;
 

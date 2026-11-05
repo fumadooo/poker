@@ -6,7 +6,7 @@ import type { ActionKind, LegalActions } from '@/lib/client/types';
 
 export interface ActionBarProps {
   legal: LegalActions | null; // vem da API; null = não é a minha vez
-  potTotal: number; // potes + apostas comprometidas (só para os atalhos)
+  potTotal: number; // soma de state.pots (o motor já inclui as apostas da rua) — só para os atalhos
   currentBet: number;
   busy: boolean;
   secondsLeft: number | null;
@@ -34,7 +34,8 @@ export function ActionBar({ legal, potTotal, currentBet, busy, secondsLeft, onAc
     if (!sizing) return [];
     const toCall = legal?.call ?? 0;
     const potAfterCall = potTotal + toCall;
-    const base = isRaise ? currentBet + toCall : 0;
+    // raise é raise-TO: pagar até currentBet e aumentar o pote-depois-do-call; bet = fichas na rua
+    const base = isRaise ? currentBet : 0;
     const list = [
       { label: 'Mín', value: sizing.min },
       { label: '½ pote', value: base + Math.floor(potAfterCall / 2) },
@@ -115,13 +116,17 @@ export function ActionBar({ legal, potTotal, currentBet, busy, secondsLeft, onAc
             type="button"
             className="btn btn-raise"
             disabled={disabled}
-            onClick={() => onAction(amount >= sizing.max && sizing.max === legal.allin ? 'allin' : isRaise ? 'raise' : 'bet', amount)}
+            onClick={() => onAction(amount >= sizing.max ? 'allin' : isRaise ? 'raise' : 'bet', amount >= sizing.max ? undefined : amount)}
           >
             {amount >= sizing.max ? 'All-in' : isRaise ? 'Aumentar' : 'Apostar'} {fmtCentsShort(amount)}
           </button>
-        ) : (
-          <button type="button" className="btn btn-raise" disabled={disabled || !(legal.allin > 0)} onClick={() => onAction('allin', legal.allin)}>
+        ) : legal.allin > 0 && !(legal.call != null && legal.call >= legal.allin) ? (
+          <button type="button" className="btn btn-raise" disabled={disabled} onClick={() => onAction('allin')}>
             All-in {fmtCentsShort(legal.allin)}
+          </button>
+        ) : (
+          <button type="button" className="btn btn-raise" disabled>
+            Aumentar
           </button>
         )}
       </div>

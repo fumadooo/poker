@@ -1,0 +1,114 @@
+== 1. users (Supabase Admin API + password grant)
+  created user poker-test-1@example.com -> 7cbc381d-2393-4a45-99aa-6d7885da7de3
+  signed in poker-test-1@example.com -> 7cbc381d-2393-4a45-99aa-6d7885da7de3
+  created user poker-test-2@example.com -> 4ed7ea89-771c-4aee-a920-70862a0762a5
+  signed in poker-test-2@example.com -> 4ed7ea89-771c-4aee-a920-70862a0762a5
+== 2. auth gate
+  [A] GET /api/me  -> 401 {"ok": false, "error": "UNAUTHORIZED", "message": "login required"}
+  OK   GET /api/me without auth -> 401
+  [A] GET /api/tables  -> 200 {"ok": true, "tables": []}
+  OK   GET /api/tables without auth -> 200 (public)
+== 3. credit + me
+  [A] GET /api/me  -> 200 {"ok": true, "id": "7cbc381d-2393-4a45-99aa-6d7885da7de3", "email": "poker-test-1@example.com", "nick": "player_7cbc38", "balance": 0}
+  OK   GET /api/me ok for A
+  [A] POST /api/me/credit  -> 200 {"ok": true, "balance": 100000}
+  OK   POST /api/me/credit for A (200 or CREDIT_LIMIT)
+  [A] GET /api/me  -> 200 {"ok": true, "id": "7cbc381d-2393-4a45-99aa-6d7885da7de3", "email": "poker-test-1@example.com", "nick": "player_7cbc38", "balance": 100000}
+  OK   A balance 100000 >= 10000
+  [B] GET /api/me  -> 200 {"ok": true, "id": "4ed7ea89-771c-4aee-a920-70862a0762a5", "email": "poker-test-2@example.com", "nick": "player_4ed7ea", "balance": 0}
+  OK   GET /api/me ok for B
+  [B] POST /api/me/credit  -> 200 {"ok": true, "balance": 100000}
+  OK   POST /api/me/credit for B (200 or CREDIT_LIMIT)
+  [B] GET /api/me  -> 200 {"ok": true, "id": "4ed7ea89-771c-4aee-a920-70862a0762a5", "email": "poker-test-2@example.com", "nick": "player_4ed7ea", "balance": 100000}
+  OK   B balance 100000 >= 10000
+== 4. create table
+  [A] POST /api/tables {"name": "smoke 10:21:36", "sb": 50, "bb": 100, "maxSeats": 6, "rakeBps": 500, "rakeCap": null, "minBuyin": 2000, "maxBuyin": 20000} -> 201 {"ok": true, "id": "2d5e543e-6f8b-4424-8dc2-0093ee5e6c22"}
+  OK   POST /api/tables -> 201
+  [A] GET /api/tables  -> 200 {"ok": true, "tables": [{"id": "2d5e543e-6f8b-4424-8dc2-0093ee5e6c22", "name": "smoke 10:21:36", "game": "nlh", "sb_cents": 50, "bb_cents": 100, "max_seats": 6,
+  OK   GET /api/tables lists the table with seated=0
+== 5. sit
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/sit {"seat": 0, "buyin": 999} -> 400 {"ok": false, "error": "BUYIN_RANGE", "message": "buyin must be in 2000..20000"}
+  OK   buyin below min -> 400 BUYIN_RANGE
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/sit {"seat": 0, "buyin": 10000} -> 200 {"ok": true, "seat": 0, "stack": 10000, "balance": 90000, "version": 0}
+  OK   A sits seat 0 with 10000
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/sit {"seat": 0, "buyin": 10000} -> 400 {"ok": false, "error": "SEAT_TAKEN", "message": "seat is taken"}
+  OK   B on seat 0 -> 400 SEAT_TAKEN
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/sit {"seat": 2, "buyin": 10000} -> 200 {"ok": true, "seat": 2, "stack": 10000, "balance": 90000, "version": 1}
+  OK   B sits seat 2 with 10000
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/sit {"seat": 3, "buyin": 10000} -> 400 {"ok": false, "error": "ALREADY_SEATED", "message": "you already sit at this table"}
+  OK   B again -> 400 ALREADY_SEATED
+== 6. tick starts the hand
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/tick  -> 200 {"ok": true, "changed": false, "version": 1}
+  OK   tick ok
+  OK   hand started: street preflop
+  OK   table public cols carry no state
+  OK   publicView: no deck, seed hidden while running
+  OK   A sees own 2 hole cards
+  OK   B does not see A's hole cards
+  OK   anon GET state -> 200 (spectator)
+  OK   anon sees no hole cards at all, me.seat null, legal null
+  OK   anon: no deck, no seed
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/tick  -> 401 {"ok": false, "error": "UNAUTHORIZED", "message": "login required"}
+  OK   anon tick -> 401
+  hand 30179e0a-d157-486f-921e-41a65807a09f no=1 button=0 sb=0 bb=2 toAct=0 version=1
+== 7. error paths
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "fold", "version": 1} -> 403 {"ok": false, "error": "NOT_YOUR_TURN", "message": "seat 0 is to act"}
+  OK   wrong player -> 403 NOT_YOUR_TURN
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "call", "version": 8} -> 409 {"ok": false, "error": "VERSION_CONFLICT", "message": "expected version 8, table is at 1"}
+  OK   stale version -> 409 VERSION_CONFLICT
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "bet", "amount": 1, "version": 1} -> 400 {"ok": false, "error": "ILLEGAL_ACTION", "message": "ILLEGAL_ACTION: there is already a bet; use raise"}
+  OK   bet facing the blind -> 400 ILLEGAL_ACTION
+== 8. play: call/check, fold on the turn
+  OK   legal actions present for A (street preflop)
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "call", "version": 1} -> 200 {"ok": true, "version": 2}
+  OK   A call on preflop (version 1) -> 200
+  OK   legal actions present for B (street preflop)
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "check", "version": 2} -> 200 {"ok": true, "version": 3}
+  OK   B check on preflop (version 2) -> 200
+  OK   legal actions present for B (street flop)
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "check", "version": 3} -> 200 {"ok": true, "version": 4}
+  OK   B check on flop (version 3) -> 200
+  OK   legal actions present for A (street flop)
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "check", "version": 4} -> 200 {"ok": true, "version": 5}
+  OK   A check on flop (version 4) -> 200
+  OK   legal actions present for B (street turn)
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "fold", "version": 5} -> 200 {"ok": true, "version": 7}
+  OK   B fold on turn (version 5) -> 200
+  OK   street ended with result
+  OK   seed published after the hand ended (audit)
+  board=['Jh', '9d', 'Ts', '8h'] pots=[{'amount': 200, 'eligible': [0]}] rake=10 winners=[{'seat': 0, 'amount': 190, 'playerId': '7cbc381d-2393-4a45-99aa-6d7885da7de3', 'potIndex': 0}] stacks=[{'seat': 0, 'stack': 10090}, {'seat': 2, 'stack': 9900}]
+  OK   winners + rake == pots
+  OK   stacks + rake == 20000 (chips conserved)
+== 9. settlement rows
+  OK   hands row exists with ended_at
+  actions: [{'seat': 0, 'street': 'preflop', 'action': 'call', 'amount_cents': 50}, {'seat': 2, 'street': 'preflop', 'action': 'check', 'amount_cents': 0}, {'seat': 2, 'street': 'flop', 'action': 'check', 'amount_cents': 0}, {'seat': 0, 'street': 'flop', 'action': 'check', 'amount_cents': 0}, {'seat': 2, 'street': 'turn', 'action': 'fold', 'amount_cents': 0}]
+  OK   one actions row per action event
+  OK   seats.stack_cents == result.stacks
+  OK   rake ledger row for the house == 10
+== 10. next hand auto-starts after 3 s
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/tick  -> 200 {"ok": true, "changed": true, "version": 8}
+  OK   hand 2 started (preflop)
+  OK   new handId
+== 11. hand 2: first to act folds (uncontested, no flop)
+  OK   legal actions present for B (street preflop)
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/action {"action": "fold", "version": 8} -> 200 {"ok": true, "version": 10}
+  OK   B fold on preflop (version 8) -> 200
+  OK   hand 2 ended uncontested, shown=[]
+  rake=0 (no flop no drop) stacks=[{'seat': 0, 'stack': 10140}, {'seat': 2, 'stack': 9850}]
+== 12. leave both (cashout)
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/leave  -> 200 {"ok": true, "pending": false, "cashout": 10140, "balance": 100140}
+  OK   A leaves now (cashout)
+  [B] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/leave  -> 200 {"ok": true, "pending": false, "cashout": 9850, "balance": 99850}
+  OK   B leaves now (cashout)
+  OK   all seats left with stack 0
+  [A] POST /api/table/2d5e543e-6f8b-4424-8dc2-0093ee5e6c22/leave  -> 400 {"ok": false, "error": "NOT_SEATED", "message": "you are not seated at this table"}
+  OK   leave again -> 400 NOT_SEATED
+== 13. ledger invariants (PostgREST, service role)
+  GLOBAL: sum(balances incl. house)=200000 + sum(active stacks)=0 = 200000 ; sum(credit_test)=200000 ; house rake total=10
+  OK   GLOBAL: balances + stacks == credits
+  TABLE 2d5e543e-6f8b-4424-8dc2-0093ee5e6c22: buyins=20000 == cashouts=19990 + rake=10 + stacks=0 = 20000
+  OK   TABLE: buyins == cashouts + rake + stacks
+  A balance before=100000 after=100140 delta=140
+  B balance before=100000 after=99850 delta=-150
+  OK   A+B balances == before - table rake
+== RESULT: PASS

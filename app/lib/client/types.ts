@@ -114,6 +114,7 @@ export interface SeatRow {
   nick?: string | null;
   stack_cents: number;
   status: 'sitting' | 'sitout' | 'left';
+  pending_leave?: boolean;
 }
 
 export interface MeInfo {
@@ -131,6 +132,7 @@ export interface TableStateResponse {
   me: { seat: number | null; hole: Card[] } | null;
   legal?: LegalActions | null;
   version: number;
+  serverNow?: number; // epoch ms do servidor (corrige relógio do cliente)
 }
 
 export interface CreateTableBody {
