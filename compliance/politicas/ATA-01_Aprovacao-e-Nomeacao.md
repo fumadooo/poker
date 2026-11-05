@@ -2,7 +2,7 @@
 
 **BLACK OPS LTDA** · CNPJ 58.557.156/0001-58 · NIRE 42208911825
 
-**Data, hora e local**: 05 de novembro de 2026, às ____h____, na sede social, Av. Prefeito Osmar Cunha, 416, Sala 1108, Centro, Florianópolis/SC, CEP 88015-100.
+**Data e local**: 05 de novembro de 2026, na sede social, Av. Prefeito Osmar Cunha, 416, Sala 1108, Centro, Florianópolis/SC, CEP 88015-100.
 
 **Presenças**: a totalidade dos sócios, representando 100% do capital social:
 
