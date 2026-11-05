@@ -44,6 +44,7 @@ lines = [
     ("Abas", BOLD),
     ("• Premissas — tudo que você pode mudar (azul, fundo amarelo): metas, prazos, mesas, horas, regra de banca, estrutura de torneio, custo do lead.", BLK),
     ("• Mesas — tabela das mesas de cash: banca mínima pela regra, buy-in e rake medido na Brasa (SPY-brasa, 04–05/11/2026).", BLK),
+    ("• Meta 30 dias — escolha o lucro líquido, horas/dia e dias: mostra o que é necessário na ficha R$ 5, 10 e 25 com 1 a 4 mesas.", BLK),
     ("• Ficha 5 — PADRÃO DA CARTILHA: todos os cenários em mesas de big blind R$ 5, 10 e 25, com buy-in, mãos/h e rake medidos na Brasa.", BLK),
     ("• Cash — os cenários de cash game pela regra de banca: 5 bancas × 5 prazos × 2 metas.", BLK),
     ("• Ficha alta — cada pacote sentado em cada mesa (R$ 0,10 a R$ 5): quantas entradas a banca cobre e quanto a meta pede por 100 mãos.", BLK),
@@ -211,6 +212,40 @@ for mr in (11, 12, 13):        # linhas de Mesas: bb 5, 10, 25
         row += 1
 f5.freeze_panes = "D5"
 put(f5, f"A{row+1}", "Leitura: 'Pode sentar?' compara a banca com o buy-in mínimo da mesa (40 bb). 'Entradas que a banca cobre' usa o buy-in médio real da Brasa. Ganho necessário = o que a meta exige a cada 100 mãos, já pago o rake.", Font(name=F, italic=True, color="666666"))
+
+# ---------------------------------------------------------------- Meta 30 dias (lucro líquido do jogador)
+mt = wb.create_sheet("Meta 30 dias", 1)
+put(mt, "A1", "Meta do jogador: lucro líquido no prazo — o que é necessário (ficha R$ 5, 10 e 25)", H1)
+put(mt, "A3", "Lucro líquido desejado (R$)"); put(mt, "B3", 1900, BLUE, BRL, YEL)
+put(mt, "A4", "Horas por dia"); put(mt, "B4", 1, BLUE, DEC, YEL)
+put(mt, "A5", "Dias"); put(mt, "B5", 30, BLUE, INT, YEL)
+put(mt, "A6", "Ganho de referência para comparar (bb/100, líquido)"); put(mt, "B6", f"={PR('Ganho de referência')}", GRN, DEC)
+mt.column_dimensions["A"].width = 30
+hm = ["Mesa (bb R$)", "Mesas ao mesmo tempo", "Mãos por hora por mesa (medido)", "Mãos por dia", "Mãos no prazo", "Lucro necessário por hora (R$)",
+      "Lucro necessário por dia (R$)", "Lucro em big blinds no prazo", "GANHO NECESSÁRIO (bb/100, líquido)", "Rake pago (bb/100)", "GANHO ANTES DO RAKE (bb/100)",
+      "Lucro em buy-ins médios da Brasa", "Rake pago no prazo (R$)", "Com o ganho de referência: lucro no prazo (R$)", "Com o ganho de referência: horas/dia para a meta"]
+hdr(mt, 8, hm, [30, 10, 12, 10, 11, 12, 12, 12, 15, 10, 15, 13, 13, 15, 15])
+hands_h = {11: 48.8, 12: 48.5, 13: 80.6}
+row = 9
+for mr in (11, 12, 13):
+    for nt in (1, 2, 3, 4):
+        R = row
+        put(mt, f"A{R}", f"=Mesas!$A${mr}", GRN, BRL2); put(mt, f"B{R}", nt, BLUE, INT, YEL); put(mt, f"C{R}", hands_h[mr], BLUE, DEC, YEL)
+        put(mt, f"D{R}", f"=B{R}*C{R}*$B$4", fmt=INT); put(mt, f"E{R}", f"=D{R}*$B$5", fmt=INT)
+        put(mt, f"F{R}", "=IF($B$4*$B$5=0,0,$B$3/($B$4*$B$5))", fmt=BRL2); put(mt, f"G{R}", "=IF($B$5=0,0,$B$3/$B$5)", fmt=BRL2)
+        put(mt, f"H{R}", f"=IF(A{R}=0,0,$B$3/A{R})", fmt=DEC)
+        put(mt, f"I{R}", f"=IF(E{R}=0,0,H{R}/E{R}*100)", BOLD, DEC)
+        put(mt, f"J{R}", f"=Mesas!$G${mr}", GRN, DEC); put(mt, f"K{R}", f"=I{R}+J{R}", BOLD, DEC)
+        put(mt, f"L{R}", f"=IF(Mesas!$K${mr}=0,0,$B$3/Mesas!$K${mr})", fmt=DEC)
+        put(mt, f"M{R}", f"=E{R}/100*J{R}*A{R}", fmt=BRL)
+        put(mt, f"N{R}", f"=E{R}/100*$B$6*A{R}", fmt=BRL)
+        put(mt, f"O{R}", f"=IF($B$6*A{R}*B{R}*C{R}*$B$5=0,0,$B$3/($B$6*A{R})*100/(B{R}*C{R}*$B$5))", fmt=DEC)
+        for col in range(1, 16): mt.cell(R, col).border = BOX
+        row += 1
+    row += 1
+put(mt, f"A{row}", "Banca para sentar (buy-in mínimo da Brasa = 40 bb): ficha R$ 5 → R$ 200 · ficha R$ 10 → R$ 400 · ficha R$ 25 → R$ 1.000. Buy-in médio usado pelos jogadores: R$ 233 · R$ 799 · R$ 1.838.", Font(name=F, italic=True, color="666666"))
+mt.merge_cells(f"A{row}:O{row+1}"); mt[f"A{row}"].alignment = Alignment(wrap_text=True, vertical="top")
+mt.freeze_panes = "B9"
 
 # ---------------------------------------------------------------- Ficha alta
 fa = wb.create_sheet("Ficha alta")
