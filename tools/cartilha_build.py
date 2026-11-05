@@ -44,6 +44,7 @@ lines = [
     ("Abas", BOLD),
     ("• Premissas — tudo que você pode mudar (azul, fundo amarelo): metas, prazos, mesas, horas, regra de banca, estrutura de torneio, custo do lead.", BLK),
     ("• Mesas — tabela das mesas de cash: banca mínima pela regra, buy-in e rake medido na Brasa (SPY-brasa, 04–05/11/2026).", BLK),
+    ("• Ficha 5 — PADRÃO DA CARTILHA: todos os cenários em mesas de big blind R$ 5, 10 e 25, com buy-in, mãos/h e rake medidos na Brasa.", BLK),
     ("• Cash — os cenários de cash game pela regra de banca: 5 bancas × 5 prazos × 2 metas.", BLK),
     ("• Ficha alta — cada pacote sentado em cada mesa (R$ 0,10 a R$ 5): quantas entradas a banca cobre e quanto a meta pede por 100 mãos.", BLK),
     ("• Torneio — o mesmo cenário pelo caminho do torneio: buy-in, prêmio do 1º, quantos 1º ou top-3 a meta exige.", BLK),
@@ -118,11 +119,12 @@ for i, v in enumerate([3, 7, 15, 30, 60]):
 # ---------------------------------------------------------------- Mesas
 m = wb.create_sheet("Mesas")
 put(m, "A1", "Mesas de cash — banca mínima pela regra e rake medido na Brasa", H1)
-hdr(m, 3, ["Big blind (R$)", "Buy-in 100bb (R$)", "Banca mínima pela regra (R$)", "Rake da mesa medido (R$)", "Mãos medidas", "Rake por mão (R$)", "Rake por jogador a cada 100 mãos (bb)", "Origem do rake", "Jogadores por mão (medido)", "Buy-in mínimo da mesa (40bb, R$)"],
-    [14, 14, 18, 16, 13, 14, 20, 34, 14, 16])
+hdr(m, 3, ["Big blind (R$)", "Buy-in 100bb (R$)", "Banca mínima pela regra (R$)", "Rake da mesa medido (R$)", "Mãos medidas", "Rake por mão (R$)", "Rake por jogador a cada 100 mãos (bb)", "Origem do rake", "Jogadores por mão (medido)", "Buy-in mínimo da mesa (40bb, R$)", "Buy-in médio medido na Brasa (R$)"],
+    [14, 14, 18, 16, 13, 14, 20, 34, 14, 16, 16])
 mesas = [(0.02, None, None, "Sem medição: usa o rake em bb da mesa de R$ 0,10", 4.7), (0.05, None, None, "Sem medição: usa o rake em bb da mesa de R$ 0,10", 4.7),
          (0.10, 2329.31, 8068, "SPY-brasa 04–05/11/2026 (cash)", 4.74), (0.25, 5124.87, 5687, "SPY-brasa", 6.25), (0.50, 10060.47, 6153, "SPY-brasa", 6.21),
-         (1.00, 16533.11, 6032, "SPY-brasa", 6.17), (2.00, 33609.62, 9610, "SPY-brasa", 5.07), (5.00, 8877.41, 1057, "SPY-brasa", 6.15)]
+         (1.00, 16533.11, 6032, "SPY-brasa", 6.17), (2.00, 33609.62, 9610, "SPY-brasa", 5.07), (5.00, 8877.41, 1057, "SPY-brasa", 6.15),
+         (10.00, 7193.60, 426, "SPY-brasa", 5.29), (25.00, 12339.01, 809, "SPY-brasa (amostra pequena)", 3.22)]
 for i, (bb, rk, hands, src, npl) in enumerate(mesas):
     rr = 4 + i
     put(m, f"A{rr}", bb, BLUE, BRL2, YEL); put(m, f"B{rr}", f"=A{rr}*100", fmt=BRL2)
@@ -134,9 +136,11 @@ for i, (bb, rk, hands, src, npl) in enumerate(mesas):
     else:
         put(m, f"G{rr}", "=$G$6", fmt=DEC)
     put(m, f"H{rr}", src, Font(name=F, color="666666")); put(m, f"I{rr}", npl, BLUE, DEC, YEL); put(m, f"J{rr}", f"=A{rr}*40", fmt=BRL2)
-put(m, "A13", "O rake da Brasa é 5% de todo pote que passa das blinds, sem teto. Por jogador, ele custa dezenas de bb a cada 100 mãos — é o 'pedágio' que o ganho antes do rake precisa cobrir. Se o contador do observador perdeu mãos, o rake real por mão é menor: edite as colunas D/E.", Font(name=F, italic=True, color="666666"))
-m.merge_cells("A13:J14"); m["A13"].alignment = Alignment(wrap_text=True, vertical="top")
-MESA_BB = "Mesas!$A$4:$A$11"; MESA_MIN = "Mesas!$C$4:$C$11"; MESA_RK = "Mesas!$G$4:$G$11"
+    bim = {0.10: 7.18, 0.25: 14.49, 0.50: 27.59, 1.00: 56.23, 2.00: 114.36, 5.00: 233.36, 10.00: 798.72, 25.00: 1837.81}.get(bb)
+    put(m, f"K{rr}", bim if bim else f"=A{rr}*70", BLUE if bim else BLK, BRL2, YEL if bim else None)
+put(m, "A15", "O rake da Brasa é 5% de todo pote que passa das blinds, sem teto. Por jogador, ele custa dezenas de bb a cada 100 mãos — é o 'pedágio' que o ganho antes do rake precisa cobrir. Se o contador do observador perdeu mãos, o rake real por mão é menor: edite as colunas D/E.", Font(name=F, italic=True, color="666666"))
+m.merge_cells("A15:K16"); m["A15"].alignment = Alignment(wrap_text=True, vertical="top")
+MESA_BB = "Mesas!$A$4:$A$13"; MESA_MIN = "Mesas!$C$4:$C$13"; MESA_RK = "Mesas!$G$4:$G$13"
 
 # ---------------------------------------------------------------- Cash
 c_ = wb.create_sheet("Cash")
@@ -175,6 +179,38 @@ for meta in ("A", "B"):
 c_.freeze_panes = "D5"
 CASH_LAST = row - 1
 put(c_, f"A{row+1}", "Referência para ler a coluna L: no mercado, um jogador vencedor sólido de cash online costuma registrar algo entre 2 e 10 bb/100 líquidos. Acima de ~20 bb/100 sustentados por milhares de mãos é raríssimo.", Font(name=F, italic=True, color="666666"))
+
+# ---------------------------------------------------------------- Ficha 5 (padrão da cartilha)
+f5 = wb.create_sheet("Ficha 5", 1)
+put(f5, "A1", "Ficha mínima R$ 5 — todos os cenários em mesas de big blind R$ 5, 10 e 25 (métricas medidas na Brasa)", H1)
+put(f5, "A2", "Buy-in = o médio que os jogadores da Brasa usam em cada mesa. Mãos por hora e rake = medidos. Meta: terminar com R$ 2.000. Edite volume em Premissas.", Font(name=F, color="666666"))
+h5 = ["Banca inicial (R$)", "Prazo (dias)", "Mesa (bb R$)", "Buy-in médio Brasa (R$)", "Buy-in mínimo (R$)", "Pode sentar?", "Entradas que a banca cobre (buy-in médio)",
+      "Lucro necessário p/ R$ 2.000 (R$)", "Lucro necessário em buy-ins médios", "Mãos por dia", "Mãos no prazo", "Lucro necessário por hora (R$)",
+      "GANHO NECESSÁRIO (bb/100, líquido)", "Rake pago (bb/100)", "GANHO ANTES DO RAKE (bb/100)", "Se ganhar a referência: horas/dia", "Rake pago no prazo (R$) → receita bruta da casa"]
+hdr(f5, 4, h5, [11, 8, 9, 12, 11, 9, 13, 13, 13, 10, 11, 12, 15, 10, 15, 13, 16])
+row = 5
+for mr in (11, 12, 13):        # linhas de Mesas: bb 5, 10, 25
+    for bref in BANC:
+        for pref in PRAZ:
+            R = row
+            put(f5, f"A{R}", f"={bref}", GRN, BRL); put(f5, f"B{R}", f"={pref}", GRN, INT); put(f5, f"C{R}", f"=Mesas!$A${mr}", GRN, BRL2)
+            put(f5, f"D{R}", f"=Mesas!$K${mr}", GRN, BRL2); put(f5, f"E{R}", f"=Mesas!$J${mr}", GRN, BRL2)
+            put(f5, f"F{R}", f'=IF(A{R}>=E{R},"SIM","NÃO")', BOLD)
+            put(f5, f"G{R}", f"=IF(D{R}=0,0,A{R}/D{R})", fmt=DEC)
+            put(f5, f"H{R}", f"=MAX(0,{PR('Meta A')}-A{R})", fmt=BRL)
+            put(f5, f"I{R}", f"=IF(D{R}=0,0,H{R}/D{R})", fmt=DEC)
+            put(f5, f"J{R}", f"={PR('Mesas simultâneas')}*{PR('Horas por dia')}*{PR('Mãos por hora')}", fmt=INT)
+            put(f5, f"K{R}", f"=J{R}*B{R}", fmt=INT)
+            put(f5, f"L{R}", f"=IF({PR('Horas por dia')}*B{R}=0,0,H{R}/({PR('Horas por dia')}*B{R}))", fmt=BRL2)
+            put(f5, f"M{R}", f"=IF(K{R}*C{R}=0,0,H{R}/(K{R}/100*C{R}))", BOLD, DEC)
+            put(f5, f"N{R}", f"=Mesas!$G${mr}", GRN, DEC); put(f5, f"O{R}", f"=M{R}+N{R}", BOLD, DEC)
+            put(f5, f"P{R}", f"=IF({PR('Ganho de referência')}*C{R}*B{R}*{PR('Mesas simultâneas')}*{PR('Mãos por hora')}=0,0,H{R}/({PR('Ganho de referência')}*C{R})*100/B{R}/({PR('Mesas simultâneas')}*{PR('Mãos por hora')}))", fmt=DEC)
+            put(f5, f"Q{R}", f"=K{R}/100*N{R}*C{R}", fmt=BRL)
+            for col in range(1, 18): f5.cell(R, col).border = BOX
+            row += 1
+        row += 1
+f5.freeze_panes = "D5"
+put(f5, f"A{row+1}", "Leitura: 'Pode sentar?' compara a banca com o buy-in mínimo da mesa (40 bb). 'Entradas que a banca cobre' usa o buy-in médio real da Brasa. Ganho necessário = o que a meta exige a cada 100 mãos, já pago o rake.", Font(name=F, italic=True, color="666666"))
 
 # ---------------------------------------------------------------- Ficha alta
 fa = wb.create_sheet("Ficha alta")
@@ -284,6 +320,17 @@ for i, bref in enumerate(BANC):
     for col in range(1, 14): ca.cell(R, col).border = BOX
 put(ca, "A11", "Leitura da coluna '% de execução para empatar': dos leads que depositam (Premissas), quantos precisam cumprir a trilha inteira para a receita líquida pagar o custo do lead. Abaixo de 100% = a coorte se paga com esse % executando.", Font(name=F, italic=True, color="666666"))
 ca.merge_cells("A11:M12"); ca["A11"].alignment = Alignment(wrap_text=True, vertical="top")
+put(ca, "A22", "Ficha R$ 5 (padrão da cartilha) — receita líquida por executor e % de execução para empatar", BOLD)
+hdr(ca, 23, ["Mesa (bb R$)", "", "Rake por jogador-hora (R$)"] + [f"Receita líquida por executor — trilha {i+1}" for i in range(5)] + [f"% p/ empatar — trilha {i+1}" for i in range(5)])
+for j, mr in enumerate((11, 12, 13)):
+    R = 24 + j
+    put(ca, f"A{R}", f"=Mesas!$A${mr}", GRN, BRL2)
+    put(ca, f"C{R}", f"=Mesas!$G${mr}/100*A{R}*{PR('Mesas simultâneas')}*{PR('Mãos por hora')}", fmt=BRL2)
+    for k in range(5):
+        col = L(4 + k); dias = f"{L(4+k)}$3"
+        put(ca, f"{col}{R}", f"=C{R}*{PR('Horas por dia')}*{dias}*{PR('Parte do rake')}*(1-{PR('Impostos')}-{PR('Cashback')})", fmt=BRL)
+        put(ca, f"{L(9+k)}{R}", f"=IF({col}{R}=0,0,{PR('Custo por lead')}/({PR('% dos leads que depositam')}*{col}{R}))", BOLD, PCT)
+    for col in range(1, 14): ca.cell(R, col).border = BOX
 put(ca, "A14", "Mês cheio (todas as premissas)", BOLD)
 put(ca, "A15", "Custo de mídia no mês (R$)"); put(ca, "D15", f"={PR('Leads por mês')}*{PR('Custo por lead')}", fmt=BRL)
 put(ca, "A16", "Depositantes no mês"); put(ca, "D16", f"={PR('Leads por mês')}*{PR('% dos leads que depositam')}", fmt=INT)
